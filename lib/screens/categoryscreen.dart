@@ -107,82 +107,86 @@ class _CategoryScreenState extends State<CategoryScreen> {
     _loadCategories();
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Categories", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: TextButton.icon(
-              icon: const Icon(Icons.add),
-              label: const Text("Add Category"),
-              onPressed: () => _showCategoryDialog(),
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.blueGrey,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text("Categories", style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600)),
+    ),
+    body: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          // Search Bar & Button in Row for alignment
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search),
+                    hintText: "Search categories...",
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 16), // Space between search bar & button
+              TextButton.icon(
+                icon: const Icon(Icons.add, color: Colors.white,size: 38), 
+                label: const Text("Add Category", style: TextStyle(color: Colors.white)), 
+                onPressed: () => _showCategoryDialog(),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: const Color(0xFF203A43), 
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12), // Space before DataTable
+          Expanded(
+            child: _filteredCategories.isEmpty
+                ? const Center(child: Text("No categories available"))
+                : SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: DataTable(
+                        headingRowColor: WidgetStateColor.resolveWith((states) => const Color.fromARGB(255, 50, 70, 80)),
+                        columnSpacing: 500,
+                        border: TableBorder.all(width: 1, color: Colors.grey),
+                        columns: const [
+                          DataColumn(label: Text("Name", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 15))),
+                          DataColumn(label: Text("Code", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 15))),
+                          DataColumn(label: Text("Actions", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white,fontSize: 15))),
+                        ],
+                        rows: _filteredCategories.map((category) {
+                          return DataRow(cells: [
+                            DataCell(Text(category.name)),
+                            DataCell(Text(category.code)),
+                            DataCell(Row(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit, color: Colors.blue),
+                                  onPressed: () => _showCategoryDialog(category: category),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () => _deleteCategory(category.id!),
+                                ),
+                              ],
+                            )),
+                          ]);
+                        }).toList(),
+                      ),
+                    ),
+                  ),
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search),
-                hintText: "Search categories...",
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: _filteredCategories.isEmpty
-                  ? const Center(child: Text("No categories available"))
-                  : SingleChildScrollView(
-                scrollDirection: Axis.horizontal, // Horizontal scrolling
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical, 
-                            child: DataTable(
-                              headingRowColor: WidgetStateColor.resolveWith((states) => Colors.blueGrey), // Set header color
-                              columnSpacing: 500,
-                              border: TableBorder.all(width: 1, color: Colors.grey),
-                              columns: const [
-                                DataColumn(label: Text("Name", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
-                                DataColumn(label: Text("Code", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
-                                DataColumn(label: Text("Actions", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
-                              ],
-                              rows: _filteredCategories.map((category) {
-                                return DataRow(cells: [
-                                  DataCell(Text(category.name)),
-                                  DataCell(Text(category.code)),
-                                  DataCell(Row(
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.edit, color: Colors.blue),
-                                        onPressed: () => _showCategoryDialog(category: category),
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.delete, color: Colors.red),
-                                        onPressed: () => _deleteCategory(category.id!),
-                                      ),
-                                    ],
-                                  )),
-                                ]);
-                              }).toList(),
-                            ),
-                          ),
-                        )
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+    ),
+  );
+}
+
 }

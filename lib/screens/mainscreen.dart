@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sales_managementv5/screens/categoryscreen.dart';
 import 'package:sales_managementv5/screens/menus_screen.dart';
 import 'package:sales_managementv5/screens/userscreen.dart';
-import 'package:sales_managementv5/screens/loginscreen.dart'; // Import LoginScreen
+import 'package:sales_managementv5/screens/loginscreen.dart';
 
 class MainLayout extends StatefulWidget {
   final Widget child;
@@ -13,60 +14,100 @@ class MainLayout extends StatefulWidget {
 }
 
 class _MainLayoutState extends State<MainLayout> {
+  String userName = "Guest";
+  String userEmail = "guest@example.com";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserDetails();
+  }
+
+  Future<void> _loadUserDetails() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userName = prefs.getString('userName') ?? "Guest";
+      userEmail = prefs.getString('userEmail') ?? "guest@example.com";
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    bool isLoginScreen = widget.child is LoginScreen; // Check if the child is LoginScreen
-
+    bool isLoginScreen = widget.child is LoginScreen;
+    Color primaryColor = Color(0xFF203A43);
+    Color secondaryColor = Color(0xFF0F2027);
+    
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Sales Management"),
+        title: const Text(
+          "Sales Management",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
+          ),
+        ),
+        centerTitle: true,
+        elevation: 4,
+        backgroundColor: primaryColor,
+        iconTheme: const IconThemeData(color: Colors.white),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout, color: Colors.white),
+            onPressed: _showLogoutDialog,
+          ),
+        ],
       ),
-      drawer: isLoginScreen ? null : _buildDrawer(), // Hide drawer in LoginScreen
+      drawer: isLoginScreen ? null : _buildDrawer(primaryColor, secondaryColor),
       body: widget.child,
     );
   }
 
-  Widget _buildDrawer() {
+  Widget _buildDrawer(Color primaryColor, Color secondaryColor) {
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
+      child: Column(
         children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(color: Colors.blueGrey),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.business, size: 40, color: Colors.white),
-                SizedBox(height: 10),
-                Text("Admin Panel", style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-              ],
+          UserAccountsDrawerHeader(
+            decoration: BoxDecoration(
+              color: primaryColor,
+            ),
+            accountName: Text(
+              userName,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            accountEmail: Text(
+              userEmail,
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+            currentAccountPicture: const CircleAvatar(
+              backgroundColor: Colors.white,
+              child: Icon(Icons.person, size: 40, color: Colors.blueGrey),
             ),
           ),
-          _buildDrawerItem(Icons.category, "Categories", () {
+          _buildDrawerItem(Icons.category, "Categories", primaryColor, () {
             _navigateToScreen(context, const CategoryScreen());
           }),
-          _buildDrawerItem(Icons.dashboard, "Menus", () {
+          _buildDrawerItem(Icons.restaurant_menu, "Menus", primaryColor, () {
             _navigateToScreen(context, MenuScreen());
           }),
-          _buildDrawerItem(Icons.dashboard, "Accounts", () {
+          _buildDrawerItem(Icons.people, "Accounts", primaryColor, () {
             _navigateToScreen(context, UserListScreen());
           }),
-          _buildDrawerItem(Icons.shopping_cart, "Products", () {
-            // Navigate to Products Screen (Replace with actual screen)
-          }),
-          _buildDrawerItem(Icons.logout, "Logout", () {
-            // Add logout functionality
-          }),
+          Divider(),
+          _buildDrawerItem(Icons.logout, "Logout", Colors.red, _showLogoutDialog),
         ],
       ),
     );
   }
 
-  Widget _buildDrawerItem(IconData icon, String title, VoidCallback onTap) {
+  Widget _buildDrawerItem(IconData icon, String title, Color iconColor, VoidCallback onTap) {
     return ListTile(
-      leading: Icon(icon, color: Colors.blueGrey),
-      title: Text(title, style: const TextStyle(fontSize: 16)),
+      leading: Icon(icon, color: iconColor),
+      title: Text(
+        title,
+        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+      ),
       onTap: onTap,
     );
   }
@@ -75,6 +116,38 @@ class _MainLayoutState extends State<MainLayout> {
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => MainLayout(child: screen)),
+    );
+  }
+
+  Future<void> _logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => LoginScreen()),
+    );
+  }
+
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Logout"),
+        content: const Text("Are you sure you want to logout?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel", style: TextStyle(color: Colors.grey)),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(context);
+              await _logout();
+            },
+            child: const Text("Logout", style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
     );
   }
 }
