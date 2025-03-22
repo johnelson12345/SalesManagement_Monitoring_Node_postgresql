@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sales_managementv5/screens/homescreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sales_managementv5/screens/categoryscreen.dart';
 import 'package:sales_managementv5/screens/menus_screen.dart';
@@ -17,25 +18,26 @@ class _MainLayoutState extends State<MainLayout> {
   String userName = "Guest";
   String userEmail = "guest@example.com";
 
-  @override
-  void initState() {
-    super.initState();
-    _loadUserDetails();
-  }
+@override
+void initState() {
+  super.initState();
+  _loadUserDetails();
+}
 
-  Future<void> _loadUserDetails() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      userName = prefs.getString('userName') ?? "Guest";
-      userEmail = prefs.getString('userEmail') ?? "guest@example.com";
-    });
-  }
+Future<void> _loadUserDetails() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  setState(() {
+    userName = prefs.getString('userName') ?? "Guest";
+    userEmail = prefs.getString('userEmail') ?? "guest@example.com";
+  });
+}
+
 
   @override
   Widget build(BuildContext context) {
     bool isLoginScreen = widget.child is LoginScreen;
-    Color primaryColor = Color(0xFF203A43);
-    Color secondaryColor = Color(0xFF0F2027);
+    Color primaryColor = const Color(0xFF203A43);
+    Color secondaryColor = const Color(0xFF0F2027);
     
     return Scaffold(
       appBar: AppBar(
@@ -85,16 +87,19 @@ class _MainLayoutState extends State<MainLayout> {
               child: Icon(Icons.person, size: 40, color: Colors.blueGrey),
             ),
           ),
+          _buildDrawerItem(Icons.category, "Home", primaryColor, () {
+            _navigateToScreen(context,  HomeScreen());
+          }),
           _buildDrawerItem(Icons.category, "Categories", primaryColor, () {
             _navigateToScreen(context, const CategoryScreen());
           }),
           _buildDrawerItem(Icons.restaurant_menu, "Menus", primaryColor, () {
-            _navigateToScreen(context, MenuScreen());
+            _navigateToScreen(context, const MenuScreen());
           }),
           _buildDrawerItem(Icons.people, "Accounts", primaryColor, () {
-            _navigateToScreen(context, UserListScreen());
+            _navigateToScreen(context, const UserListScreen());
           }),
-          Divider(),
+          const Divider(),
           _buildDrawerItem(Icons.logout, "Logout", Colors.red, _showLogoutDialog),
         ],
       ),

@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:sales_managementv5/screens/categoryscreen.dart';
 import 'package:sales_managementv5/screens/loginscreen.dart';
-import 'package:sales_managementv5/screens/mainscreen.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -18,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
       ),
-      home: MainLayout(child: LoginScreen()), // Wrap CategoryScreen inside MainLayout
+      home:   const LoginScreen(), // Wrap CategoryScreen inside MainLayout
     );
   }
 }

@@ -230,91 +230,95 @@ Future<void> _pickImage() async {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Menus", style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: TextButton.icon(
-              icon: const Icon(Icons.add),
-              label: const Text("Add Menu"),
-              onPressed: () => _showMenuDialog(),
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.white,
-                backgroundColor: Colors.blueGrey,
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text("Menus", style: TextStyle(fontSize: 26, fontWeight: FontWeight.w600)),
+    ),
+    body: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          // Search Bar & Button in Row for alignment
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _searchController,
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search),
+                    hintText: "Search menus...",
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  ),
+                ),
               ),
-            ),
+              const SizedBox(width: 16), // Space between search bar & button
+              TextButton.icon(
+                icon: const Icon(Icons.add, color: Colors.white, size: 38),
+                label: const Text("Add Menu", style: TextStyle(color: Colors.white)),
+                onPressed: () => _showMenuDialog(),
+                style: TextButton.styleFrom(
+                  foregroundColor: Colors.white,
+                  backgroundColor: const Color(0xFF203A43),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12), // Space before DataTable
+          Expanded(
+            child: _filteredMenus.isEmpty
+                ? const Center(child: Text("No menus available"))
+                : SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.vertical,
+                      child: DataTable(
+                        headingRowColor: WidgetStateProperty.resolveWith(
+                            (states) => const Color.fromARGB(255, 50, 70, 80)),
+                        columnSpacing: 200,
+                        border: TableBorder.all(width: 1, color: Colors.grey),
+                        columns: const [
+                          DataColumn(label: Text("Menu Name", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 15))),
+                          DataColumn(label: Text("Category Name", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 15))),
+                          DataColumn(label: Text("Price", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 15))),
+                          DataColumn(label: Text("Status", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 15))),
+                          DataColumn(label: Text("Actions", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 15))),
+                        ],
+                        rows: _filteredMenus.map((menu) {
+                          return DataRow(cells: [
+                            DataCell(Text(menu.menuname)),
+                            DataCell(Text(
+                              _categories.firstWhere(
+                                (category) => category.id == menu.categoryid,
+                                orElse: () => Category(id: 0, name: "Unknown", code: ''),
+                              ).name,
+                            )),
+                            DataCell(Text(menu.price.toString())),
+                            DataCell(Text(menu.status)),
+                            DataCell(Row(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.edit, color: Colors.blue),
+                                  onPressed: () => _showMenuDialog(menu: menu),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete, color: Colors.red),
+                                  onPressed: () => _deleteMenu(menu.id!),
+                                ),
+                              ],
+                            )),
+                          ]);
+                        }).toList(),
+                      ),
+                    ),
+                  ),
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search),
-                hintText: "Search menus...",
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Expanded(
-              child: _filteredMenus.isEmpty
-                  ? const Center(child: Text("No menus available"))
-                  : SingleChildScrollView(
-                      scrollDirection: Axis.horizontal, // Horizontal scrolling
-                      child: SingleChildScrollView(
-                        scrollDirection: Axis.vertical, 
-                        child: DataTable(
-                          headingRowColor: WidgetStateProperty.resolveWith((states) => Colors.blueGrey), // Set header color
-                          columnSpacing: 200,
-                          border: TableBorder.all(width: 1, color: Colors.grey),
-                          columns: const [
-                            DataColumn(label: Text("Menu Name", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
-                            DataColumn(label: Text("Category Name", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
-                            DataColumn(label: Text("Price", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
-                            DataColumn(label: Text("Status", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
-                            DataColumn(label: Text("Actions", style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white))),
-                          ],
-                          rows: _filteredMenus.map((menu) {
-                            return DataRow(cells: [
-                              DataCell(Text(menu.menuname)),
-                              DataCell(Text(
-                                _categories.firstWhere(
-                                  (category) => category.id == menu.categoryid,
-                                  orElse: () => Category(id: 0, name: "Unknown", code: ''),
-                                ).name,
-                                )),
+    ),
+  );
+}
 
-                              DataCell(Text(menu.price.toString())),
-                              DataCell(Text(menu.status)),
-                              DataCell(Row(
-                                children: [
-                                  IconButton(
-                                    icon: const Icon(Icons.edit, color: Colors.blue),
-                                    onPressed: () => _showMenuDialog(menu: menu),
-                                  ),
-                                  IconButton(
-                                    icon: const Icon(Icons.delete, color: Colors.red),
-                                    onPressed: () => _deleteMenu(menu.id!),
-                                  ),
-                                ],
-                              )),
-                            ]);
-                          }).toList(),
-                        ),
-                      ),
-                    ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 }

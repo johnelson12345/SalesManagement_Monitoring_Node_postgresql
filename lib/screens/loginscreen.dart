@@ -7,6 +7,8 @@ import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
   @override
   _LoginScreenState createState() => _LoginScreenState();
 }
@@ -17,53 +19,76 @@ class _LoginScreenState extends State<LoginScreen> {
   bool isLoading = false;
   String errorMessage = '';
 
-  Future<void> loginUser() async {
-    setState(() {
-      isLoading = true;
-      errorMessage = '';
-    });
+ Future<void> loginUser() async {
+  setState(() {
+    isLoading = true;
+    errorMessage = '';
+  });
 
-    const String apiUrl = "http://localhost:3000/users/login";
+  const String apiUrl = "http://localhost:3000/users/login";
 
-    try {
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode({
-          "email": emailController.text.trim(),
-          "password": passwordController.text.trim(),
-        }),
-      );
+  try {
+    final response = await http.post(
+      Uri.parse(apiUrl),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "email": emailController.text.trim(),
+        "password": passwordController.text.trim(),
+      }),
+    );
 
-      final data = jsonDecode(response.body);
+    print("🔹 Status Code: ${response.statusCode}");
+    print("🔹 Response: ${response.body}");
 
-      if (response.statusCode == 200) {
-        String token = data['token'];
+    if (response.statusCode == 200) {
+      final Map<String, dynamic> data = jsonDecode(response.body);
+      print("✅ Login successful: $data");
 
-        SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('token', token);
+      SharedPreferences prefs = await SharedPreferences.getInstance();
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => const MainLayout(child: CategoryScreen()),
-          ),
-        );
+      // Store token (required)
+      await prefs.setString('token', data['token']);
+
+      // Check if 'name' exists before storing
+      if (data.containsKey('name') && data['name'] != null) {
+        await prefs.setString('userName', data['name']);
       } else {
-        setState(() {
-          errorMessage = data['error'] ?? "Invalid email or password";
-        });
+        print("🚨 Warning: 'name' is missing or null in API response");
       }
-    } catch (e) {
+
+      // Check if 'email' exists before storing
+      if (data.containsKey('email') && data['email'] != null) {
+        await prefs.setString('userEmail', data['email']);
+      } else {
+        print("🚨 Warning: 'email' is missing or null in API response");
+      }
+
+      // Navigate to the next screen
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const MainLayout(child: CategoryScreen()),
+        ),
+      );
+    } else {
+      final data = jsonDecode(response.body);
       setState(() {
-        errorMessage = "Error: Unable to connect to server";
-      });
-    } finally {
-      setState(() {
-        isLoading = false;
+        errorMessage = data['error'] ?? "Invalid email or password";
       });
     }
+  } catch (e) {
+    print("🚨 Error: $e");
+    setState(() {
+      errorMessage = "Error: Unable to connect to server";
+    });
+  } finally {
+    setState(() {
+      isLoading = false;
+    });
   }
+}
+
+
 
   @override
   Widget build(BuildContext context) {
