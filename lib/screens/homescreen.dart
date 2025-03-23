@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:sales_managementv5/services/category_service.dart';
 import 'package:sales_managementv5/services/menu_service.dart';
@@ -52,14 +54,34 @@ class HomeScreenState extends State<HomeScreen> {
       length: categories.isNotEmpty ? categories.length : 1,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text("Categories"),
+          title: const Text("Menus"),
           bottom: categories.isNotEmpty
               ? TabBar(
-                  isScrollable: true,
-                  tabs: categories.map((category) {
-                    return Tab(text: category.name);
-                  }).toList(),
-                )
+                isScrollable: categories.length > 4 ? true : false,
+                labelColor: Colors.white, // Active tab text color
+                unselectedLabelColor: Colors.grey.shade400, // Inactive tab text color
+                indicator: BoxDecoration(
+                  borderRadius: BorderRadius.circular(25), // Makes the indicator rounded
+                  color: Colors.orange.shade600, // Active tab background color
+                ),
+                labelStyle: const TextStyle(
+                  fontSize: 16, 
+                  fontWeight: FontWeight.bold, 
+                  fontFamily: 'Montserrat',
+                ),
+                unselectedLabelStyle: const TextStyle(
+                  fontSize: 14, 
+                  fontWeight: FontWeight.w500,
+                ),
+                indicatorSize: TabBarIndicatorSize.label, // Ensures indicator fits the label
+                tabs: categories.map((category) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                    child: Tab(text: category.name),
+                  );
+                }).toList(),
+              )
+
               : null,
         ),
         body: isLoading
@@ -70,7 +92,7 @@ class HomeScreenState extends State<HomeScreen> {
                       return _buildCategoryMenu(category.id!);
                     }).toList(),
                   )
-                : const Center(child: Text("No Categories Available")),
+                : const Center(child: Text("No Menus Available")),
       ),
     );
   }
@@ -139,17 +161,7 @@ class MenuCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: Colors.grey.shade300, width: 1.5),
                 ),
-                child: menu.image != null && menu.image!.isNotEmpty
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.file(
-                          File(menu.image!),
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              const Icon(Icons.broken_image, color: Colors.red, size: 40),
-                        ),
-                      )
-                    : const Icon(Icons.image, color: Colors.grey, size: 40),
+                child: _buildImage(menu.image),
               ),
               const SizedBox(height: 8),
 
@@ -201,5 +213,25 @@ class MenuCard extends StatelessWidget {
     );
   }
 
+ Widget _buildImage(String? base64String) {
+    if (base64String == null || base64String.isEmpty) {
+      return const Icon(Icons.image, color: Colors.grey, size: 40);
+    }
 
+    try {
+      Uint8List bytes = base64Decode(base64String);
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(12),
+        child: Image.memory(
+          bytes,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) =>
+              const Icon(Icons.broken_image, color: Colors.red, size: 40),
+        ),
+      );
+    } catch (e) {
+      print("Error decoding base64: $e");
+      return const Icon(Icons.broken_image, color: Colors.red, size: 40);
+    }
+  }
 }

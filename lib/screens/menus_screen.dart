@@ -1,11 +1,12 @@
 import 'dart:io';
-
+import 'dart:typed_data';
+import 'package:image/image.dart' as img;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:sales_managementv5/model/category_model.dart';
 import 'package:sales_managementv5/model/menu_model.dart';  // Assuming you have a Menu model
 import 'package:sales_managementv5/services/menu_service.dart';  // Assuming you have a MenuService to handle CRUD operations
-
+import 'dart:convert';
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
 
@@ -81,7 +82,22 @@ Future<void> _pickImage() async {
     });
   }
 }
+Future<String> compressAndConvertToBase64(File imageFile) async {
+  List<int> imageBytes = await imageFile.readAsBytes();
+  img.Image? image = img.decodeImage(Uint8List.fromList(imageBytes));
 
+  if (image != null) {
+    // Resize to a smaller width (keep aspect ratio)
+    img.Image resized = img.copyResize(image, width: 300);
+    
+    // Compress with lower quality (JPG format)
+    List<int> compressedBytes = img.encodeJpg(resized, quality: 75);
+    
+    return base64Encode(compressedBytes);
+  }
+
+  return base64Encode(imageBytes);
+}
 
 
   void _showMenuDialog({Menu? menu}) {
@@ -189,6 +205,11 @@ Future<void> _pickImage() async {
                     _statusController.text.isEmpty) return;
 
                 if (menu == null) {
+                 String? base64Image;
+                  if (_selectedImage != null) {
+                    base64Image = await compressAndConvertToBase64(_selectedImage!);
+                  }
+
                   await MenuService.addMenu(
                     Menu(
                       menuname: _nameController.text,
@@ -196,6 +217,7 @@ Future<void> _pickImage() async {
                       description: _descriptionController.text,
                       price: double.parse(_priceController.text),
                       status: _statusController.text,
+                      image: base64Image
                     ),
                   );
                 } else {
@@ -207,6 +229,7 @@ Future<void> _pickImage() async {
                       description: _descriptionController.text,
                       price: double.parse(_priceController.text),
                       status: _statusController.text,
+                      image: _selectedImage?.path
                     ),
                   );
                 }
