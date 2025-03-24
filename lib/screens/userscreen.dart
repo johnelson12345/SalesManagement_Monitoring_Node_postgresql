@@ -23,7 +23,7 @@ class _UserListScreenState extends State<UserListScreen> {
     TextEditingController nameController = TextEditingController(text: user?.name ?? "");
     TextEditingController emailController = TextEditingController(text: user?.email ?? "");
     TextEditingController passwordController = TextEditingController();
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
 
     showDialog(
       context: context,
@@ -32,7 +32,7 @@ class _UserListScreenState extends State<UserListScreen> {
         title: Text(user == null ? "Add User" : "Edit User", style: const TextStyle(fontWeight: FontWeight.bold)),
         content: SingleChildScrollView(
           child: Form(
-            key: _formKey,
+            key: formKey,
             child: Column(
               children: [
                 TextFormField(
@@ -63,7 +63,7 @@ class _UserListScreenState extends State<UserListScreen> {
                     ElevatedButton(
                       style: _elevatedButtonStyle(),
                       onPressed: () {
-                        if (_formKey.currentState!.validate()) {
+                        if (formKey.currentState!.validate()) {
                           if (user == null) {
                             apiService.addUser(nameController.text, emailController.text, passwordController.text).then((success) {
                               _handleResponse(success, "User added successfully");

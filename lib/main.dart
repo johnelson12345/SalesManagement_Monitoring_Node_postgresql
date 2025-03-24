@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blueGrey,
       ),
-      home:   const LoginScreen(), // Wrap CategoryScreen inside MainLayout
+      home:   const LoginScreen(), 
     );
   }
 }

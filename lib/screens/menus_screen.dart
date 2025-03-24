@@ -60,9 +60,6 @@ void _loadCategories() async {
   }
 }
 
-
-
-
  void _filterMenus() {
   String query = _searchController.text.toLowerCase();
   setState(() {
@@ -87,10 +84,10 @@ Future<String> compressAndConvertToBase64(File imageFile) async {
   img.Image? image = img.decodeImage(Uint8List.fromList(imageBytes));
 
   if (image != null) {
-    // Resize to a smaller width (keep aspect ratio)
+  
     img.Image resized = img.copyResize(image, width: 300);
     
-    // Compress with lower quality (JPG format)
+    
     List<int> compressedBytes = img.encodeJpg(resized, quality: 75);
     
     return base64Encode(compressedBytes);
@@ -99,14 +96,17 @@ Future<String> compressAndConvertToBase64(File imageFile) async {
   return base64Encode(imageBytes);
 }
 
-
   void _showMenuDialog({Menu? menu}) {
+    String? base64Image = menu?.image; // Get base64 image from menu
+  Uint8List? decodedImage = base64Image != null ? base64Decode(base64Image) : null;
     if (menu != null) {
       _nameController.text = menu.menuname;
-      _categoryController.text = menu.categoryid.toString(); // Assuming categoryid is the ID to show
+      _selectedCategoryId = menu.categoryid.toString();
+
       _descriptionController.text = menu.description ?? '';
       _priceController.text = menu.price.toString();
       _statusController.text = menu.status;
+     
     } else {
       _nameController.clear();
       _categoryController.clear();
@@ -176,20 +176,21 @@ Future<String> compressAndConvertToBase64(File imageFile) async {
                     ),
                     const SizedBox(height: 12),
 
-                              Column(
+                    Column(
                   children: [
-                    _selectedImage != null
-                        ? Image.file(_selectedImage!, height: 100) // Display selected image
-                        : const Text("No image selected"),
-                    
-                     ElevatedButton.icon(
-                    onPressed: () async {
-                      await _pickImage();
-                      setState(() {}); // Now updates UI inside the dialog
-                    },
-                    icon: const Icon(Icons.image),
-                    label: const Text("Choose Image"),
-                  ),
+                    if (_selectedImage != null) 
+                      Image.file(_selectedImage!, height: 100) // If new image selected
+                    else if (decodedImage != null)
+                      Image.memory(decodedImage, height: 100), // Show existing image
+                    const SizedBox(height: 8),
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        await _pickImage();
+                        setState(() {}); // Update UI inside the dialog
+                      },
+                      icon: const Icon(Icons.image),
+                      label: const Text("Choose Image"),
+                    ),
                   ],
                 )
 
@@ -221,6 +222,10 @@ Future<String> compressAndConvertToBase64(File imageFile) async {
                     ),
                   );
                 } else {
+                  String? base64Image;
+                  if (_selectedImage != null) {
+                    base64Image = await compressAndConvertToBase64(_selectedImage!);
+                  }
                   await MenuService.updateMenu(
                     menu.id!,
                     Menu(
@@ -229,7 +234,7 @@ Future<String> compressAndConvertToBase64(File imageFile) async {
                       description: _descriptionController.text,
                       price: double.parse(_priceController.text),
                       status: _statusController.text,
-                      image: _selectedImage?.path
+                      image: base64Image
                     ),
                   );
                 }

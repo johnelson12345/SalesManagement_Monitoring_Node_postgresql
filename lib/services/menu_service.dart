@@ -20,23 +20,13 @@ class MenuService {
 
   // Add a new menu item
 static Future<void> addMenu(Menu menu) async {
-  try {
+  
     final response = await http.post(
       Uri.parse(_baseUrl),
       headers: {'Content-Type': 'application/json'},
       body: json.encode(menu.toJson()),
     );
 
-    if (response.statusCode == 201) {  // 201 means "Created"
-      print("Menu added successfully!");
-    } else {
-      print("Failed to add menu: ${response.body}");
-      throw Exception("Failed to add menu: ${response.statusCode}");
-    }
-  } catch (e) {
-    print("Error adding menu: $e");
-    throw Exception("Error adding menu: $e");
-  }
 }
 
 
