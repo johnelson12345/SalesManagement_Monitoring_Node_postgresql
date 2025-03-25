@@ -112,39 +112,39 @@ Widget build(BuildContext context) {
               : const Center(child: Text("No Menus Available")),
 
       floatingActionButton: Stack(
-  clipBehavior: Clip.none, // Allows badge to overflow correctly
-  children: [
-    FloatingActionButton(
-      onPressed: () {
-        showCartDialog(context, cartItems, cartQuantities);
-      },
-      backgroundColor: Colors.orange.shade600,
-      child: const Icon(Icons.shopping_cart, color: Colors.white),
-    ),
-    if (cartItemCount > 0)
-      Positioned(
-        right: 0,
-        top: -5, // Adjust position for better alignment
-        child: Container(
-          padding: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            color: Colors.red,
-            shape: BoxShape.circle,
+            clipBehavior: Clip.none, // Allows badge to overflow correctly
+            children: [
+              FloatingActionButton(
+                onPressed: () {
+                  showCartDialog(context, cartItems, cartQuantities);
+                },
+                backgroundColor: Colors.orange.shade600,
+                child: const Icon(Icons.shopping_cart, color: Colors.white),
+              ),
+              if (cartItemCount > 0)
+                Positioned(
+                  right: 0,
+                  top: -5, // Adjust position for better alignment
+                  child: Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    constraints: const BoxConstraints(minWidth: 22, minHeight: 22),
+                    child: Text(
+                      '$cartItemCount',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+            ],
           ),
-          constraints: const BoxConstraints(minWidth: 22, minHeight: 22),
-          child: Text(
-            '$cartItemCount',
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
-  ],
-),
 
     ),
   );
