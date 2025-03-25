@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:sales_managementv5/screens/cart_dialog.dart';
 import 'package:sales_managementv5/services/category_service.dart';
 import 'package:sales_managementv5/services/menu_service.dart';
 import 'package:sales_managementv5/model/category_model.dart';
@@ -16,13 +16,27 @@ class HomeScreenState extends State<HomeScreen> {
   List<Category> categories = [];
   Map<int, List<Menu>> categoryMenus = {};
   bool isLoading = true;
- int cartItemCount = 0;
+  int cartItemCount = 0;
 
-   void incrementCart() {
-    setState(() {
-      cartItemCount++; // 🔹 Increase cart count when Buy button is clicked
-    });
-  }
+  List<Menu> cartItems = []; // List to store cart items
+  Map<int, int> cartQuantities = {}; // Map to track quantities
+
+void addToCart(Menu menu) {  // Ensure it accepts a Menu object
+  setState(() {
+    if (!cartQuantities.containsKey(menu.id)) {
+      cartItems.add(menu);
+      cartQuantities[menu.id!] = 1;
+    } else {
+      cartQuantities[menu.id!] = cartQuantities[menu.id!]! + 1;
+    }
+    cartItemCount = cartQuantities.values.fold(0, (sum, qty) => sum + qty);
+
+    print("Added to cart: ${menu.menuname}, Total items: $cartItemCount");
+  });
+}
+
+
+
   @override
   void initState() {
     super.initState();
@@ -97,38 +111,41 @@ Widget build(BuildContext context) {
                 )
               : const Center(child: Text("No Menus Available")),
 
-      // 🛒 Floating Action Button (FAB) with Cart Badge
       floatingActionButton: Stack(
-        children: [
-          FloatingActionButton(
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text("Cart clicked!")),
-              );
-            },
-            backgroundColor: Colors.orange.shade600,
-            child: const Icon(Icons.shopping_cart, color: Colors.white),
+  clipBehavior: Clip.none, // Allows badge to overflow correctly
+  children: [
+    FloatingActionButton(
+      onPressed: () {
+        showCartDialog(context, cartItems, cartQuantities);
+      },
+      backgroundColor: Colors.orange.shade600,
+      child: const Icon(Icons.shopping_cart, color: Colors.white),
+    ),
+    if (cartItemCount > 0)
+      Positioned(
+        right: 0,
+        top: -5, // Adjust position for better alignment
+        child: Container(
+          padding: const EdgeInsets.all(6),
+          decoration: BoxDecoration(
+            color: Colors.red,
+            shape: BoxShape.circle,
           ),
-          if (cartItemCount > 0) // Show badge only if cart has items
-            Positioned(
-              right: 0,
-              top: 0,
-              child: Container(
-                padding: const EdgeInsets.all(5),
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                constraints: const BoxConstraints(minWidth: 20, minHeight: 20),
-                child: Text(
-                  '$cartItemCount',
-                  style: const TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold),
-                  textAlign: TextAlign.center,
-                ),
-              ),
+          constraints: const BoxConstraints(minWidth: 22, minHeight: 22),
+          child: Text(
+            '$cartItemCount',
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
             ),
-        ],
+            textAlign: TextAlign.center,
+          ),
+        ),
       ),
+  ],
+),
+
     ),
   );
 }
@@ -148,7 +165,8 @@ Widget build(BuildContext context) {
             ),
             itemCount: menus.length,
             itemBuilder: (context, index) {
-              return MenuCard(menu: menus[index], incrementCart: incrementCart,);
+              return MenuCard(menu: menus[index], addToCart: (menu) => addToCart(menu));
+
             },
           )
         : const Center(child: Text("No items in this category"));
@@ -157,101 +175,93 @@ Widget build(BuildContext context) {
 
 class MenuCard extends StatelessWidget {
   final Menu menu;
-  final VoidCallback incrementCart; 
+ final void Function(Menu) addToCart; // Accepts a Menu parameter
 
-  const MenuCard({super.key, required this.menu,required this.incrementCart,  });
+ const MenuCard({super.key, required this.menu, required this.addToCart});
+
 
   @override
-Widget build(BuildContext context) {
-  double screenWidth = MediaQuery.of(context).size.width;
-  double cardWidth = screenWidth * 0.23; // Slightly bigger for better visibility
+  Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double cardWidth = screenWidth * 0.23;
 
-  return Scaffold(
-    body: Center(
-      child: Container(
-        width: cardWidth,
-        margin: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.3),
-              blurRadius: 8,
-              spreadRadius: 2,
-              offset: const Offset(2, 4),
-            ),
-          ],
-        ),
-        child: Card(
-          elevation: 0,
-          color: Colors.white,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-          child: Padding(
-            padding: const EdgeInsets.all(8),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // 🖼️ Image
-                Container(
-                  width: cardWidth * 0.8,
-                  height: cardWidth * 0.8,
-                  decoration: BoxDecoration(
-                    color: Colors.grey[200],
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey.shade300, width: 1.5),
-                  ),
-                  child: _buildImage(menu.image),
+    return Container(
+      width: cardWidth,
+      margin: const EdgeInsets.all(8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            blurRadius: 8,
+            spreadRadius: 2,
+            offset: const Offset(2, 4),
+          ),
+        ],
+      ),
+      child: Card(
+        elevation: 0,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: cardWidth * 0.8,
+                height: cardWidth * 0.8,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.grey.shade300, width: 1.5),
                 ),
-                const SizedBox(height: 8),
-
-                // 🏷️ Name
-                Text(
-                  menu.menuname,
-                  style: const TextStyle(
-                    color: Colors.black87,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                  textAlign: TextAlign.center,
+                child: _buildImage(menu.image),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                menu.menuname,
+                style: const TextStyle(
+                  color: Colors.black87,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
                 ),
-                const SizedBox(height: 4),
-
-                // 💰 Price
-                Text(
-                  "₱${menu.price.toStringAsFixed(2)}",
-                  style: const TextStyle(
-                    color: Colors.green,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  textAlign: TextAlign.center,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                "₱${menu.price.toStringAsFixed(2)}",
+                style: const TextStyle(
+                  color: Colors.green,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
                 ),
-                const SizedBox(height: 8),
-
-                // 🛒 Buy Button
-                SizedBox(
-                  width: cardWidth * 0.8,
-                  child: ElevatedButton.icon(
-                    onPressed: incrementCart,
-                    icon: const Icon(Icons.shopping_cart, color: Colors.white, size: 16),
-                    label: const Text("Buy", style: TextStyle(fontSize: 14)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange.shade600,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                    ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: cardWidth * 0.8,
+                child: ElevatedButton.icon(
+                 onPressed: () => addToCart(menu),
+                  icon: const Icon(Icons.shopping_cart, color: Colors.white, size: 16),
+                  label: const Text("Buy", style: TextStyle(fontSize: 14)),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange.shade600,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
+
 
 
  Widget _buildImage(String? base64String) {
@@ -275,4 +285,4 @@ Widget build(BuildContext context) {
       return const Icon(Icons.broken_image, color: Colors.red, size: 40);
     }
   }
-}
+
