@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:sales_managementv5/model/menu_model.dart';
+import 'package:sales_managementv5/services/order_service.dart';
 import 'package:sales_managementv5/widgets/image_helper.dart';
 
 void showCartDialog(BuildContext context, List<Menu> cartItems, Map<int, int> cartQuantities) {
   TextEditingController customerNameController = TextEditingController();
+   final OrderService orderService = OrderService();
 
   showDialog(
     context: context,
@@ -16,8 +18,11 @@ void showCartDialog(BuildContext context, List<Menu> cartItems, Map<int, int> ca
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Container(
               width: MediaQuery.of(context).size.width * 0.7, 
-              constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.7),
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.8),
+              
               padding: const EdgeInsets.all(12),
+               child: SingleChildScrollView( 
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -145,36 +150,64 @@ void showCartDialog(BuildContext context, List<Menu> cartItems, Map<int, int> ca
                     ),
                   ),
 
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      TextButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: const Text("Close", style: TextStyle(color: Colors.grey, fontSize: 14)),
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          String customerName = customerNameController.text.trim();
-                          if (customerName.isEmpty) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Please enter a customer name")),
-                            );
-                            return;
-                          }
-                          // Checkout logic here with customerName
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.orange.shade600,
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                        ),
-                        icon: const Icon(Icons.payment, color: Colors.white, size: 18),
-                        label: const Text("Checkout", style: TextStyle(fontSize: 14, color: Colors.white)),
-                      ),
-                    ],
-                  ),
+                 Row(
+  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  children: [
+    // Close Button
+    TextButton(
+      onPressed: () => Navigator.of(context).pop(),
+      child: const Text(
+        "Close",
+        style: TextStyle(color: Colors.grey, fontSize: 14),
+      ),
+    ),
+
+    // Checkout Button
+    ElevatedButton.icon(
+     // Log response or error to debug
+onPressed: () async {
+  String customerName = customerNameController.text.trim();
+  if (customerName.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Please enter a customer name")),
+    );
+    return;
+  }
+
+  try {
+    print('Creating order...');
+    await OrderService().createOrder(customerName, totalPrice);
+    print('Order created successfully');
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Order saved successfully!")),
+    );
+    Navigator.of(context).pop(); // Close the dialog after saving
+  } catch (e) {
+    print('Failed to save order: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Failed to save order: $e")),
+    );
+  }
+},
+
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.orange.shade600,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+      ),
+      icon: const Icon(Icons.payment, color: Colors.white, size: 18),
+      label: const Text(
+        "Checkout",
+        style: TextStyle(fontSize: 14, color: Colors.white),
+      ),
+    ),
+  ],
+)
+
+
                 ],
               ),
+               )
             ),
           );
         },
