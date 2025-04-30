@@ -1,31 +1,31 @@
 class Order {
-  final int id;
+  final int? id; // Nullable for creating new orders
   final String customerName;
   final double totalPrice;
-  final DateTime createdAt;
+  final DateTime orderDate;
 
   Order({
-    required this.id,
+    this.id,
     required this.customerName,
     required this.totalPrice,
-    required this.createdAt,
+    required this.orderDate,
   });
 
-  // Convert JSON to Order Object
   factory Order.fromJson(Map<String, dynamic> json) {
     return Order(
       id: json['id'],
       customerName: json['customer_name'],
-      totalPrice: json['total_price'].toDouble(),
-      createdAt: DateTime.parse(json['created_at']),
+      totalPrice: double.parse(json['total_price'].toString()),
+      orderDate: DateTime.parse(json['order_date']),
     );
   }
 
-  // Convert Order Object to JSON
   Map<String, dynamic> toJson() {
     return {
-      "customer_name": customerName,
-      "total_price": totalPrice,
+      'id': id,
+      'customer_name': customerName,
+      'total_price': totalPrice,
+      'order_date': orderDate.toIso8601String(),
     };
   }
 }

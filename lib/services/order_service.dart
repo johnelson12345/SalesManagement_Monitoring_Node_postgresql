@@ -1,44 +1,42 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:sales_managementv5/model/order_model.dart';
+import 'package:sales_managementv5/model/orderitem_model.dart';
 
 class OrderService {
-  final String baseUrl = "http://localhost:3000/orders"; // Update with actual API URL
+  final String baseUrl = "http://localhost:3000/orders"; // Fixed API URL to match backend
 
-  // Fetch all orders
   Future<List<Order>> getOrders() async {
-    final response = await http.get(Uri.parse(baseUrl));
-
-    if (response.statusCode == 200) {
-      List<dynamic> body = jsonDecode(response.body);
-      return body.map((data) => Order.fromJson(data)).toList();
-    } else {
-      throw Exception("Failed to load orders");
+    try {
+      final response = await http.get(Uri.parse(baseUrl));
+      if (response.statusCode == 200) {
+        final List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => Order.fromJson(json)).toList();
+      } else {
+        throw Exception("Failed to load orders");
+      }
+    } catch (e) {
+      throw Exception("Error fetching orders: $e");
     }
   }
 
-  // Create a new order
-  Future<void> createOrder(String customerName, double totalPrice) async {
-    final response = await http.post(
-      Uri.parse(baseUrl),
-      headers: {"Content-Type": "application/json"},
-      body: jsonEncode({
-        "customer_name": customerName,
-        "total_price": totalPrice,
-      }),
-    );
+  Future<void> placeOrder(String customerName, List<OrderItem> items) async {
+    try {
+      final cartItems = items.map((item) => item.toJson()).toList();
+      final response = await http.post(
+        Uri.parse(baseUrl),  // Changed from "${baseUrl}/checkout" to "${baseUrl}"
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'customer_name': customerName,
+          'cartItems': cartItems,
+        }),
+      );
 
-    if (response.statusCode != 201) {
-      throw Exception("Failed to create order");
-    }
-  }
-
-  // Delete an order
-  Future<void> deleteOrder(int id) async {
-    final response = await http.delete(Uri.parse("$baseUrl/$id"));
-
-    if (response.statusCode != 200) {
-      throw Exception("Failed to delete order");
+      if (response.statusCode != 201) {
+        throw Exception("Failed to place order");
+      }
+    } catch (e) {
+      throw Exception("Error placing order: $e");
     }
   }
 }

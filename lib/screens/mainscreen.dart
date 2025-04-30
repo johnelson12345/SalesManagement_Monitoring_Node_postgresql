@@ -5,6 +5,7 @@ import 'package:sales_managementv5/screens/categoryscreen.dart';
 import 'package:sales_managementv5/screens/menus_screen.dart';
 import 'package:sales_managementv5/screens/userscreen.dart';
 import 'package:sales_managementv5/screens/loginscreen.dart';
+import 'package:sales_managementv5/screens/orderscreen.dart';  // Added import for OrderScreen
 
 class MainLayout extends StatefulWidget {
   final Widget child;
@@ -98,6 +99,9 @@ Future<void> _loadUserDetails() async {
           }),
           _buildDrawerItem(Icons.people, "Accounts", primaryColor, () {
             _navigateToScreen(context, const UserListScreen());
+          }),
+          _buildDrawerItem(Icons.list_alt, "Orders", primaryColor, () {  // Added Orders drawer item
+            _navigateToScreen(context, const OrderScreen());
           }),
           const Divider(),
           _buildDrawerItem(Icons.logout, "Logout", Colors.red, _showLogoutDialog),
