@@ -3,6 +3,7 @@ import 'package:sales_managementv5/model/category_model.dart';
 import 'package:sales_managementv5/model/menu_model.dart';
 import 'package:sales_managementv5/services/menu_service.dart';
 import 'package:sales_managementv5/screens/menu_dialog.dart';
+import 'package:sales_managementv5/widgets/confirmation_delete_dialog.dart';
 
 class MenuScreen extends StatefulWidget {
   const MenuScreen({super.key});
@@ -169,6 +170,7 @@ class _MenuScreenState extends State<MenuScreen> {
                           _categories,
                           _showMenuDialog,
                           _deleteMenu,
+                          context
                         ),
                       ),
                     ),
@@ -185,8 +187,9 @@ class _MenuDataSource extends DataTableSource {
   final List<Category> categories;
   final Function(Menu?) showMenuDialog;
   final Function(int) deleteMenu;
+  final BuildContext context;
 
-  _MenuDataSource(this.menus, this.categories, this.showMenuDialog, this.deleteMenu);
+  _MenuDataSource(this.menus, this.categories, this.showMenuDialog, this.deleteMenu, this.context);
 
   @override
   DataRow getRow(int index) {
@@ -223,7 +226,17 @@ class _MenuDataSource extends DataTableSource {
             ),
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () => deleteMenu(menu.id!),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => ConfirmationDeleteDialog(
+                    content: 'Are you sure you want to delete this menu?',
+                    onConfirm: () {
+                      deleteMenu(menu.id!);
+                    },
+                  ),
+                );
+              },
             ),
           ],
         ),

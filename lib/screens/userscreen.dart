@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sales_managementv5/model/user_model.dart';
 import 'package:sales_managementv5/services/user_service.dart';
+import 'package:sales_managementv5/widgets/confirmation_delete_dialog.dart';
 
 class UserListScreen extends StatefulWidget {
   const UserListScreen({super.key});
@@ -90,21 +91,13 @@ class _UserListScreenState extends State<UserListScreen> {
   void confirmDeleteUser(int userId) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Delete User"),
-        content: const Text("Are you sure you want to delete this user?"),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancel")),
-          ElevatedButton(
-            style: _elevatedButtonStyle(),
-            onPressed: () {
-              apiService.deleteUser(userId).then((success) {
-                _handleResponse(success, "User deleted successfully");
-              });
-            },
-            child: const Text("Delete"),
-          ),
-        ],
+      builder: (context) => ConfirmationDeleteDialog(
+        content: "Are you sure you want to delete this user?",
+        onConfirm: () {
+          apiService.deleteUser(userId).then((success) {
+            _handleResponse(success, "User deleted successfully");
+          });
+        },
       ),
     );
   }

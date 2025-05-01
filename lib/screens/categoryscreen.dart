@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:sales_managementv5/model/category_model.dart';
 import 'package:sales_managementv5/services/category_service.dart';
+import 'package:sales_managementv5/widgets/confirmation_delete_dialog.dart';
 
 class CategoryScreen extends StatefulWidget {
   const CategoryScreen({super.key});
@@ -182,11 +183,12 @@ void _showCategoryDialog(Category? category) {
                             ),
                           ),
                         ],
-                        source: _CategoryDataSource(
-                          _filteredCategories,
-                          _showCategoryDialog,
-                          _deleteCategory,
-                        ),
+                      source: _CategoryDataSource(
+                        _filteredCategories,
+                        _showCategoryDialog,
+                        _deleteCategory,
+                        context,
+                      ),
                       ),
                     ),
             ),
@@ -201,8 +203,9 @@ class _CategoryDataSource extends DataTableSource {
   final List<Category> categories;
   final Function(Category?) showCategoryDialog;
   final Function(int) deleteCategory;
+  final BuildContext context;
 
-  _CategoryDataSource(this.categories, this.showCategoryDialog, this.deleteCategory);
+  _CategoryDataSource(this.categories, this.showCategoryDialog, this.deleteCategory, this.context);
 
   @override
   DataRow getRow(int index) {
@@ -226,7 +229,17 @@ class _CategoryDataSource extends DataTableSource {
             ),
             IconButton(
               icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () => deleteCategory(category.id!),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => ConfirmationDeleteDialog(
+                    content: 'Are you sure you want to delete this category?',
+                    onConfirm: () {
+                      deleteCategory(category.id!);
+                    },
+                  ),
+                );
+              },
             ),
           ],
         ),
