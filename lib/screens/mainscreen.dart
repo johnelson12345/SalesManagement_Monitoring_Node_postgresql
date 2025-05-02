@@ -45,7 +45,7 @@ Future<void> _loadUserDetails() async {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          "Sales Management",
+          "Dine'84 Sales Management & Monitoring",
           style: TextStyle(
             color: Colors.white,
             fontSize: 20,

@@ -20,7 +20,7 @@ class _OrderScreenState extends State<OrderScreen> {
 
   Map<int, String> _orderStatusMap = {};
 
-  static const int pageSize = 20;
+  static const int pageSize = 5;
   int _currentPage = 0;
 
   @override
