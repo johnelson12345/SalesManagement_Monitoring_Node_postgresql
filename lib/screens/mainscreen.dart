@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:sales_managementv5/screens/dashboard.dart';
 import 'package:sales_managementv5/screens/homescreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -69,51 +70,86 @@ Future<void> _loadUserDetails() async {
   }
 
   Widget _buildDrawer(Color primaryColor, Color secondaryColor) {
-    return Drawer(
-      child: Column(
-        children: [
-          UserAccountsDrawerHeader(
-            decoration: BoxDecoration(
-              color: primaryColor,
-            ),
-            accountName: Text(
-              userName,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            accountEmail: Text(
-              userEmail,
-              style: const TextStyle(color: Colors.white70, fontSize: 14),
-            ),
-            currentAccountPicture: const CircleAvatar(
-              backgroundColor: Colors.white,
-              child: Icon(Icons.person, size: 40, color: Colors.blueGrey),
-            ),
+  return Drawer(
+    child: Column(
+      children: [
+        UserAccountsDrawerHeader(
+          decoration: BoxDecoration(color: primaryColor),
+          accountName: Text(
+            userName,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
-          _buildDrawerItem(Icons.category, "Home", primaryColor, () {
-            _navigateToScreen(context,  HomeScreen());
-          }),
-          _buildDrawerItem(Icons.category, "Categories", primaryColor, () {
-            _navigateToScreen(context, const CategoryScreen());
-          }),
-          _buildDrawerItem(Icons.restaurant_menu, "Menus", primaryColor, () {
-            _navigateToScreen(context, const MenuScreen());
-          }),
-          _buildDrawerItem(Icons.people, "Accounts", primaryColor, () {
-            _navigateToScreen(context, const UserListScreen());
-          }),
-          _buildDrawerItem(Icons.list_alt, "Orders", primaryColor, () {  // Added Orders drawer item
-            _navigateToScreen(context, const OrderScreen());
-          }),
-           _buildDrawerItem(Icons.list_alt, "Dashboard", primaryColor, () {  // Added Orders drawer item
-            _navigateToScreen(context, const DashboardScreen());
-          }),
-          const Divider(),
-          _buildDrawerItem(Icons.logout, "Logout", Colors.red, _showLogoutDialog),
-        ],
-      ),
-    );
-  }
-
+          accountEmail: Text(
+            userEmail,
+            style: const TextStyle(color: Colors.white70, fontSize: 14),
+          ),
+          currentAccountPicture: const CircleAvatar(
+            backgroundColor: Colors.white,
+            child: Icon(Icons.person, size: 40, color: Colors.blueGrey),
+          ),
+        ),
+        Expanded(
+          child: ListView(
+            children: [
+              _buildDrawerItem(Icons.dashboard, "Dashboard", primaryColor, () {
+                _navigateToScreen(context, const DashboardScreen());
+              }),
+              _buildDrawerItem(Icons.home, "Home", primaryColor, () {
+                _navigateToScreen(context, HomeScreen());
+              }),
+              _buildDrawerItem(Icons.category, "Categories", primaryColor, () {
+                _navigateToScreen(context, const CategoryScreen());
+              }),
+              _buildDrawerItem(Icons.restaurant_menu, "Menus", primaryColor, () {
+                _navigateToScreen(context, const MenuScreen());
+              }),
+              _buildDrawerItem(Icons.list_alt, "Orders", primaryColor, () {
+                _navigateToScreen(context, const OrderScreen());
+              }),
+              _buildDrawerItem(Icons.people, "Accounts", primaryColor, () {
+                _navigateToScreen(context, const UserListScreen());
+              }),
+              const Divider(),
+              _buildDrawerItem(Icons.logout, "Logout", Colors.red, _showLogoutDialog),
+            ],
+          ),
+        ),
+        // Version information added here
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Divider(),
+              const SizedBox(height: 8),
+              Text(
+                'v1.0.0', // Replace with your actual version
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+              Text(
+                '© ${DateTime.now().year} Mae B. Honorario and Team', 
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+              Text(
+                'Built: ${DateFormat('yyyy-MM-dd').format(DateTime.now())}',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
+}
   Widget _buildDrawerItem(IconData icon, String title, Color iconColor, VoidCallback onTap) {
     return ListTile(
       leading: Icon(icon, color: iconColor),

@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sales_managementv5/screens/categoryscreen.dart';
+import 'package:sales_managementv5/screens/dashboard.dart';
 import 'package:sales_managementv5/screens/mainscreen.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -68,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const MainLayout(child: CategoryScreen()),
+          builder: (context) => const MainLayout(child: DashboardScreen()),
         ),
       );
     } else {

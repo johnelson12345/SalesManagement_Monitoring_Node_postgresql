@@ -20,37 +20,68 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   void initState() {
     super.initState();
-    _ordersFuture = OrderService().getOrders();
-    _menusFuture = MenuService.getMenus();
-    _categoriesFuture = MenuService.getCategories();
+    _loadData();
   }
 
-  Widget _buildSummaryCard(String title, int count, IconData icon, Color color) {
+  void _loadData() {
+    setState(() {
+      _ordersFuture = OrderService().getOrders();
+      _menusFuture = MenuService.getMenus();
+      _categoriesFuture = MenuService.getCategories();
+    });
+  }
+
+  Widget _buildSummaryCard(String title, int count, IconData icon, List<Color> gradientColors) {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 6,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
+        width: 160,
         padding: const EdgeInsets.all(16),
-        width: 150,
-        // height: 120,  // Removed fixed height to prevent overflow
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          gradient: LinearGradient(
+            colors: gradientColors,
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: gradientColors.last.withOpacity(0.6),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,  // Added to shrink-wrap content vertically
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 40, color: color),
+            Icon(icon, size: 48, color: Colors.white),
             const SizedBox(height: 12),
             Text(
               count.toString(),
-              style: TextStyle(
-                fontSize: 28,
+              style: const TextStyle(
+                fontSize: 32,
                 fontWeight: FontWeight.bold,
-                color: color,
+                color: Colors.white,
+                shadows: [
+                  Shadow(
+                    blurRadius: 4,
+                    color: Colors.black26,
+                    offset: Offset(1, 1),
+                  ),
+                ],
               ),
             ),
             const SizedBox(height: 8),
             Text(
               title,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.white70,
+              ),
             ),
           ],
         ),
@@ -63,9 +94,130 @@ class _DashboardScreenState extends State<DashboardScreen> {
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       child: Text(
         title,
-        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
       ),
     );
+  }
+
+  Widget _buildErrorWidget(String message) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          const Icon(Icons.error_outline, color: Colors.redAccent),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w600),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyWidget(String message) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          const Icon(Icons.info_outline, color: Colors.grey),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.w500),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildOrderList(List<Order> orders) {
+    if (orders.isEmpty) {
+      return _buildEmptyWidget('No orders found.');
+    }
+    final recentOrders = orders.take(5).toList();
+    return SizedBox(
+      height: 250,
+      child: ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: recentOrders.length,
+        itemBuilder: (context, index) {
+          final order = recentOrders[index];
+          return ListTile(
+            leading: const Icon(Icons.shopping_cart, color: Colors.blueAccent),
+            title: Text(order.customerName, overflow: TextOverflow.ellipsis),
+            subtitle: Text('Total: ₱${order.totalPrice.toStringAsFixed(2)}'),
+            trailing: Text(
+              order.status,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            onTap: () {
+              // Placeholder for order details navigation
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildMenuList(List<Menu> menus) {
+    if (menus.isEmpty) {
+      return _buildEmptyWidget('No menus found.');
+    }
+    final recentMenus = menus.take(5).toList();
+    return SizedBox(
+      height: 250,
+      child: ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: recentMenus.length,
+        itemBuilder: (context, index) {
+          final menu = recentMenus[index];
+          return ListTile(
+            leading: const Icon(Icons.restaurant_menu, color: Colors.green),
+            title: Text(menu.menuname, overflow: TextOverflow.ellipsis),
+            subtitle: Text('Price: ₱${menu.price.toStringAsFixed(2)}'),
+            onTap: () {
+              // Placeholder for menu details navigation
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildCategoryList(List<Category> categories) {
+    if (categories.isEmpty) {
+      return _buildEmptyWidget('No categories found.');
+    }
+    return SizedBox(
+      height: 250,
+      child: ListView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        itemCount: categories.length,
+        itemBuilder: (context, index) {
+          final category = categories[index];
+          return ListTile(
+            leading: const Icon(Icons.category, color: Colors.orange),
+            title: Text(category.name, overflow: TextOverflow.ellipsis),
+            onTap: () {
+              // Placeholder for category details navigation
+            },
+          );
+        },
+      ),
+    );
+  }
+
+  Future<void> _refreshData() async {
+    _loadData();
+    await Future.wait([_ordersFuture, _menusFuture, _categoriesFuture]);
   }
 
   @override
@@ -74,143 +226,94 @@ class _DashboardScreenState extends State<DashboardScreen> {
       appBar: AppBar(
         title: const Text('Dashboard'),
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'Refresh',
+            onPressed: () {
+              _refreshData();
+            },
+          ),
+        ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            FutureBuilder<List<dynamic>>(
-              future: Future.wait([_ordersFuture, _menusFuture, _categoriesFuture]),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Failed to load dashboard data: \${snapshot.error}'));
-                } else {
-                  final orders = snapshot.data![0] as List<Order>;
-                  final menus = snapshot.data![1] as List<Menu>;
-                  final categories = snapshot.data![2] as List<Category>;
+      body: RefreshIndicator(
+        onRefresh: _refreshData,
+        child: SingleChildScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              FutureBuilder<List<dynamic>>(
+                future: Future.wait([_ordersFuture, _menusFuture, _categoriesFuture]),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return _buildErrorWidget('Failed to load dashboard data: \${snapshot.error}');
+                  } else {
+                    final orders = snapshot.data![0] as List<Order>;
+                    final menus = snapshot.data![1] as List<Menu>;
+                    final categories = snapshot.data![2] as List<Category>;
 
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      _buildSummaryCard('Orders', orders.length, Icons.shopping_cart, Colors.blue),
-                      _buildSummaryCard('Menus', menus.length, Icons.restaurant_menu, Colors.green),
-                      _buildSummaryCard('Categories', categories.length, Icons.category, Colors.orange),
-                    ],
-                  );
-                }
-              },
-            ),
-            const SizedBox(height: 24),
-            _buildSectionTitle('Recent Orders'),
-            FutureBuilder<List<Order>>(
-              future: _ordersFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Failed to load orders: \${snapshot.error}'));
-                } else {
-                  final orders = snapshot.data!;
-                  if (orders.isEmpty) {
-                    return const Text('No orders found.');
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        _buildSummaryCard('Orders', orders.length, Icons.shopping_cart, [Colors.blue.shade700, Colors.blue.shade400]),
+                        _buildSummaryCard('Menus', menus.length, Icons.restaurant_menu, [Colors.green.shade700, Colors.green.shade400]),
+                        _buildSummaryCard('Categories', categories.length, Icons.category, [Colors.orange.shade700, Colors.orange.shade400]),
+                      ],
+                    );
                   }
-                  final recentOrders = orders.take(5).toList();
-                  return SizedBox(
-                    height: 250,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: recentOrders.length,
-                      itemBuilder: (context, index) {
-                        final order = recentOrders[index];
-                        return ListTile(
-                          title: Text(order.customerName),
-                          subtitle: Text('Total: ₱${order.totalPrice.toStringAsFixed(2)}'),
-                          trailing: Text(order.status, style: const TextStyle(fontWeight: FontWeight.bold)),
-                          onTap: () {
-                            // Placeholder for order details navigation
-                          },
-                        );
-                      },
-                    ),
-                  );
-                }
-              },
-            ),
-            const SizedBox(height: 24),
-            _buildSectionTitle('Recent Menus'),
-            FutureBuilder<List<Menu>>(
-              future: _menusFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Failed to load menus: \${snapshot.error}'));
-                } else {
-                  final menus = snapshot.data!;
-                  if (menus.isEmpty) {
-                    return const Text('No menus found.');
+                },
+              ),
+              const SizedBox(height: 24),
+              _buildSectionTitle('Recent Orders'),
+              FutureBuilder<List<Order>>(
+                future: _ordersFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return _buildErrorWidget('Failed to load orders: \${snapshot.error}');
+                  } else {
+                    final orders = snapshot.data!;
+                    return _buildOrderList(orders);
                   }
-                  final recentMenus = menus.take(5).toList();
-                  return SizedBox(
-                    height: 250,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: recentMenus.length,
-                      itemBuilder: (context, index) {
-                        final menu = recentMenus[index];
-                        return ListTile(
-                          title: Text(menu.menuname),
-                          subtitle: Text('Price: ₱${menu.price.toStringAsFixed(2)}'),
-                          onTap: () {
-                            // Placeholder for menu details navigation
-                          },
-                        );
-                      },
-                    ),
-                  );
-                }
-              },
-            ),
-            const SizedBox(height: 24),
-            _buildSectionTitle('Categories'),
-            FutureBuilder<List<Category>>(
-              future: _categoriesFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                } else if (snapshot.hasError) {
-                  return Center(child: Text('Failed to load categories: \${snapshot.error}'));
-                } else {
-                  final categories = snapshot.data!;
-                  if (categories.isEmpty) {
-                    return const Text('No categories found.');
+                },
+              ),
+              const SizedBox(height: 24),
+              _buildSectionTitle('Recent Menus'),
+              FutureBuilder<List<Menu>>(
+                future: _menusFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return _buildErrorWidget('Failed to load menus: \${snapshot.error}');
+                  } else {
+                    final menus = snapshot.data!;
+                    return _buildMenuList(menus);
                   }
-                  return SizedBox(
-                    height: 250,
-                    child: ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: categories.length,
-                      itemBuilder: (context, index) {
-                        final category = categories[index];
-                        return ListTile(
-                          title: Text(category.name),
-                          onTap: () {
-                            // Placeholder for category details navigation
-                          },
-                        );
-                      },
-                    ),
-                  );
-                }
-              },
-            ),
-          ],
+                },
+              ),
+              const SizedBox(height: 24),
+              _buildSectionTitle('Categories'),
+              FutureBuilder<List<Category>>(
+                future: _categoriesFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  } else if (snapshot.hasError) {
+                    return _buildErrorWidget('Failed to load categories: \${snapshot.error}');
+                  } else {
+                    final categories = snapshot.data!;
+                    return _buildCategoryList(categories);
+                  }
+                },
+              ),
+            ],
+          ),
         ),
       ),
     );

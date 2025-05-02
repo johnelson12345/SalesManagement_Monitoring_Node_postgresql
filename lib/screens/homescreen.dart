@@ -72,7 +72,7 @@ Widget build(BuildContext context) {
     length: categories.isNotEmpty ? categories.length : 1,
     child: Scaffold(
       appBar: AppBar(
-        title: const Text("Menus"),
+        title: const Text("Home"),
         bottom: categories.isNotEmpty
             ? TabBar(
                 isScrollable: categories.length > 4 ? true : false,
