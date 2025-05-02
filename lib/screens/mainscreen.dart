@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sales_managementv5/screens/dashboard.dart';
 import 'package:sales_managementv5/screens/homescreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sales_managementv5/screens/categoryscreen.dart';
@@ -102,6 +103,9 @@ Future<void> _loadUserDetails() async {
           }),
           _buildDrawerItem(Icons.list_alt, "Orders", primaryColor, () {  // Added Orders drawer item
             _navigateToScreen(context, const OrderScreen());
+          }),
+           _buildDrawerItem(Icons.list_alt, "Dashboard", primaryColor, () {  // Added Orders drawer item
+            _navigateToScreen(context, const DashboardScreen());
           }),
           const Divider(),
           _buildDrawerItem(Icons.logout, "Logout", Colors.red, _showLogoutDialog),

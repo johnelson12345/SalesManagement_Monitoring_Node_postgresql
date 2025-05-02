@@ -4,7 +4,7 @@ import 'package:sales_managementv5/model/order_model.dart';
 import 'package:sales_managementv5/model/orderitem_model.dart';
 
 class OrderService {
-  final String baseUrl = "http://localhost:3000/orders"; // Fixed API URL to match backend
+  final String baseUrl = "http://localhost:3000/orders";
 
   Future<List<Order>> getOrders() async {
     try {
@@ -24,7 +24,7 @@ class OrderService {
     try {
       final cartItems = items.map((item) => item.toJson()).toList();
       final response = await http.post(
-        Uri.parse(baseUrl),  // Changed from "${baseUrl}/checkout" to "${baseUrl}"
+        Uri.parse(baseUrl),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'customer_name': customerName,
@@ -37,6 +37,24 @@ class OrderService {
       }
     } catch (e) {
       throw Exception("Error placing order: $e");
+    }
+  }
+
+  Future<bool> updateOrderStatus(int orderId, String status) async {
+    try {
+      final response = await http.patch(
+        Uri.parse('$baseUrl/$orderId'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({'status': status}),
+      );
+
+      if (response.statusCode == 200) {
+        return true;
+      } else {
+        return false;
+      }
+    } catch (e) {
+      throw Exception("Error updating order status: $e");
     }
   }
 }
