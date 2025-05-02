@@ -165,7 +165,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         final menu = recentMenus[index];
                         return ListTile(
                           title: Text(menu.menuname),
-                          subtitle: Text('Price: ₱\${menu.price.toStringAsFixed(2)}'),
+                          subtitle: Text('Price: ₱${menu.price.toStringAsFixed(2)}'),
                           onTap: () {
                             // Placeholder for menu details navigation
                           },
