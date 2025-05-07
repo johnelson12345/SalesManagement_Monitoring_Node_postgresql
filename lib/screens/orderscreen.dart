@@ -337,6 +337,15 @@ class _OrderScreenState extends State<OrderScreen> {
                                           ),
                                         ),
                                         const SizedBox(height: 4),
+                                        Text(
+                                          "Table Number: ${order.tableNumber ?? 'N/A'}",
+                                          style: TextStyle(
+                                            color: Colors.grey.shade700,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
                                         RichText(
                                           text: TextSpan(
                                             style: TextStyle(

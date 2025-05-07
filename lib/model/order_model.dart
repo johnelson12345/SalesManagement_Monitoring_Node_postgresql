@@ -7,6 +7,7 @@ class Order {
   final DateTime orderDate;
   final List<OrderItem> items;
   final String status; // New status field
+  final String? tableNumber; // New table number field
 
   Order({
     this.id,
@@ -15,6 +16,7 @@ class Order {
     required this.orderDate,
     required this.items,
     required this.status,
+    this.tableNumber,
   });
 
   factory Order.fromJson(Map<String, dynamic> json) {
@@ -28,6 +30,7 @@ class Order {
       orderDate: DateTime.parse(json['order_date']),
       items: itemsList,
       status: json['status'] ?? 'pending', // default to pending if missing
+      tableNumber: json['table_number'], // parse table number
     );
   }
 
@@ -39,6 +42,7 @@ class Order {
       'order_date': orderDate.toIso8601String(),
       'items': items.map((item) => item.toJson()).toList(),
       'status': status,
+      'table_number': tableNumber, // include table number
     };
   }
 }

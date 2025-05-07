@@ -20,7 +20,7 @@ class OrderService {
     }
   }
 
-  Future<void> placeOrder(String customerName, List<OrderItem> items) async {
+  Future<void> placeOrder(String customerName, List<OrderItem> items, {String? tableNumber}) async {
     try {
       final cartItems = items.map((item) => item.toJson()).toList();
       final response = await http.post(
@@ -29,6 +29,7 @@ class OrderService {
         body: jsonEncode({
           'customer_name': customerName,
           'cartItems': cartItems,
+          'table_number': tableNumber,
         }),
       );
 

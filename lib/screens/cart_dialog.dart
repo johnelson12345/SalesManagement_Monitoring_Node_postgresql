@@ -6,6 +6,7 @@ import 'package:sales_managementv5/widgets/image_helper.dart';
 
 void showCartDialog(BuildContext context, List<Menu> cartItems, Map<int, int> cartQuantities) {
   TextEditingController customerNameController = TextEditingController();
+  TextEditingController tableNumberController = TextEditingController();
   final OrderService orderService = OrderService();
 
   showDialog(
@@ -37,6 +38,16 @@ void showCartDialog(BuildContext context, List<Menu> cartItems, Map<int, int> ca
                         labelText: "Customer Name",
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                         prefixIcon: const Icon(Icons.person),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    // Table Number Input Field
+                    TextField(
+                      controller: tableNumberController,
+                      decoration: InputDecoration(
+                        labelText: "Table Number",
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                        prefixIcon: const Icon(Icons.table_chart),
                       ),
                     ),
                     const SizedBox(height: 10),
@@ -181,6 +192,7 @@ void showCartDialog(BuildContext context, List<Menu> cartItems, Map<int, int> ca
                         ElevatedButton.icon(
                           onPressed: () async {
                             String customerName = customerNameController.text.trim();
+                            String tableNumber = tableNumberController.text.trim();
                             if (customerName.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text("Please enter a customer name")),
@@ -200,7 +212,7 @@ void showCartDialog(BuildContext context, List<Menu> cartItems, Map<int, int> ca
                                 );
                               }).toList();
 
-                              await orderService.placeOrder(customerName, orderItems);
+                              await orderService.placeOrder(customerName, orderItems, tableNumber: tableNumber);
 
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text("Order saved successfully!")),
