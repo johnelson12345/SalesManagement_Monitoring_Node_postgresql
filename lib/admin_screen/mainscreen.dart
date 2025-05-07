@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:sales_managementv5/screens/dashboard.dart';
-import 'package:sales_managementv5/screens/homescreen.dart';
+import 'package:sales_managementv5/admin_screen/dashboard.dart';
+import 'package:sales_managementv5/admin_screen/homescreen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sales_managementv5/screens/categoryscreen.dart';
-import 'package:sales_managementv5/screens/menus_screen.dart';
-import 'package:sales_managementv5/screens/userscreen.dart';
-import 'package:sales_managementv5/screens/loginscreen.dart';
-import 'package:sales_managementv5/screens/orderscreen.dart';  // Added import for OrderScreen
+import 'package:sales_managementv5/admin_screen/categoryscreen.dart';
+import 'package:sales_managementv5/admin_screen/menus_screen.dart';
+import 'package:sales_managementv5/admin_screen/userscreen.dart';
+import 'package:sales_managementv5/admin_screen/loginscreen.dart';
+import 'package:sales_managementv5/admin_screen/orderscreen.dart';  // Added import for OrderScreen
 
 class MainLayout extends StatefulWidget {
   final Widget child;

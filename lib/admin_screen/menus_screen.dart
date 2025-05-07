@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:sales_managementv5/model/category_model.dart';
 import 'package:sales_managementv5/model/menu_model.dart';
 import 'package:sales_managementv5/services/menu_service.dart';
-import 'package:sales_managementv5/screens/menu_dialog.dart';
+import 'package:sales_managementv5/admin_screen/menu_dialog.dart';
 import 'package:sales_managementv5/widgets/confirmation_delete_dialog.dart';
 
 class MenuScreen extends StatefulWidget {

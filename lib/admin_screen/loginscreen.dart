@@ -1,9 +1,9 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:sales_managementv5/screens/categoryscreen.dart';
-import 'package:sales_managementv5/screens/dashboard.dart';
-import 'package:sales_managementv5/screens/mainscreen.dart';
+import 'package:sales_managementv5/admin_screen/categoryscreen.dart';
+import 'package:sales_managementv5/admin_screen/dashboard.dart';
+import 'package:sales_managementv5/admin_screen/mainscreen.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -39,12 +39,10 @@ class _LoginScreenState extends State<LoginScreen> {
       }),
     );
 
-    print("🔹 Status Code: ${response.statusCode}");
-    print("🔹 Response: ${response.body}");
+
 
     if (response.statusCode == 200) {
       final Map<String, dynamic> data = jsonDecode(response.body);
-      print("✅ Login successful: $data");
 
       SharedPreferences prefs = await SharedPreferences.getInstance();
 
@@ -55,14 +53,12 @@ class _LoginScreenState extends State<LoginScreen> {
       if (data.containsKey('name') && data['name'] != null) {
         await prefs.setString('userName', data['name']);
       } else {
-        print("🚨 Warning: 'name' is missing or null in API response");
       }
 
       // Check if 'email' exists before storing
       if (data.containsKey('email') && data['email'] != null) {
         await prefs.setString('userEmail', data['email']);
       } else {
-        print("🚨 Warning: 'email' is missing or null in API response");
       }
 
       // Navigate to the next screen
@@ -75,11 +71,9 @@ class _LoginScreenState extends State<LoginScreen> {
     } else {
       final data = jsonDecode(response.body);
       setState(() {
-        errorMessage = data['error'] ?? "Invalid email or password";
       });
     }
   } catch (e) {
-    print("🚨 Error: $e");
     setState(() {
       errorMessage = "Error: Unable to connect to server";
     });

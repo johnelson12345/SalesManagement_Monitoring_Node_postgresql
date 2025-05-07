@@ -215,7 +215,7 @@ void showCartDialog(BuildContext context, List<Menu> cartItems, Map<int, int> ca
                               await orderService.placeOrder(customerName, orderItems, tableNumber: tableNumber);
 
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("Order saved successfully!")),
+                                const SnackBar(content: Text("Order place successfully!")),
                               );
                               Navigator.of(context).pop(); // Close dialog
                             } catch (e) {

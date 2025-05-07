@@ -470,7 +470,7 @@ class _OrderScreenState extends State<OrderScreen> {
                                                       _orderStatusMap[order.id!] = newValue;
                                                     });
                                                     ScaffoldMessenger.of(context).showSnackBar(
-                                                      SnackBar(content: Text('Order status updated to \$newValue')),
+                                                      SnackBar(content: Text('Order status updated to $newValue')),
                                                     );
                                                   } else {
                                                     ScaffoldMessenger.of(context).showSnackBar(

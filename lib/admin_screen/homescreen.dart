@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:sales_managementv5/screens/cart_dialog.dart';
+import 'package:sales_managementv5/admin_screen/cart_dialog.dart';
 import 'package:sales_managementv5/services/category_service.dart';
 import 'package:sales_managementv5/services/menu_service.dart';
 import 'package:sales_managementv5/model/category_model.dart';

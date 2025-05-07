@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:sales_managementv5/screens/categoryscreen.dart';
-import 'package:sales_managementv5/screens/loginscreen.dart';
-import 'package:sales_managementv5/screens/mainscreen.dart';
-import 'package:sales_managementv5/screens/menus_screen.dart';
+import 'package:sales_managementv5/admin_screen/categoryscreen.dart';
+import 'package:sales_managementv5/admin_screen/loginscreen.dart';
+import 'package:sales_managementv5/admin_screen/mainscreen.dart';
+import 'package:sales_managementv5/admin_screen/menus_screen.dart';
 
 void main() {
   runApp(const MyApp());
