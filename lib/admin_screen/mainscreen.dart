@@ -32,7 +32,108 @@ Future<void> _loadUserDetails() async {
   setState(() {
     userName = prefs.getString('userName') ?? "Guest";
     userEmail = prefs.getString('userEmail') ?? "guest@example.com";
+    userRole = prefs.getString('userRole') ?? "guest";
   });
+}
+
+String userRole = "guest";
+
+  Widget _buildDrawer(Color primaryColor, Color secondaryColor) {
+  return Drawer(
+    child: Column(
+      children: [
+        UserAccountsDrawerHeader(
+          decoration: BoxDecoration(color: primaryColor),
+          accountName: Text(
+            userName,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          accountEmail: Text(
+            userEmail,
+            style: const TextStyle(color: Colors.white70, fontSize: 14),
+          ),
+          currentAccountPicture: const CircleAvatar(
+            backgroundColor: Colors.white,
+            child: Icon(Icons.person, size: 40, color: Colors.blueGrey),
+          ),
+        ),
+        Expanded(
+          child: ListView(
+            children: [
+              if (userRole == "admin") ...[
+                _buildDrawerItem(Icons.dashboard, "Dashboard", primaryColor, () {
+                  _navigateToScreen(context, const DashboardScreen());
+                }),
+                _buildDrawerItem(Icons.home, "Home", primaryColor, () {
+                  _navigateToScreen(context, HomeScreen());
+                }),
+                _buildDrawerItem(Icons.category, "Categories", primaryColor, () {
+                  _navigateToScreen(context, const CategoryScreen());
+                }),
+                _buildDrawerItem(Icons.restaurant_menu, "Menus", primaryColor, () {
+                  _navigateToScreen(context, const MenuScreen());
+                }),
+                _buildDrawerItem(Icons.list_alt, "Orders", primaryColor, () {
+                  _navigateToScreen(context, const OrderScreen());
+                }),
+                _buildDrawerItem(Icons.people, "Accounts", primaryColor, () {
+                  _navigateToScreen(context, const UserListScreen());
+                }),
+              ] else if (userRole == "kitchen") ...[
+                _buildDrawerItem(Icons.restaurant_menu, "Menus", primaryColor, () {
+                  _navigateToScreen(context, const MenuScreen());
+                }),
+                _buildDrawerItem(Icons.list_alt, "Orders", primaryColor, () {
+                  _navigateToScreen(context, const OrderScreen());
+                }),
+              ] else if (userRole == "cashier") ...[
+                _buildDrawerItem(Icons.list_alt, "Orders", primaryColor, () {
+                  _navigateToScreen(context, const OrderScreen());
+                }),
+                _buildDrawerItem(Icons.people, "Accounts", primaryColor, () {
+                  _navigateToScreen(context, const UserListScreen());
+                }),
+              ],
+              const Divider(),
+              _buildDrawerItem(Icons.logout, "Logout", Colors.red, _showLogoutDialog),
+            ],
+          ),
+        ),
+        // Version information added here
+        Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Divider(),
+              const SizedBox(height: 8),
+              Text(
+                'v1.0.0', // Replace with your actual version
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+              Text(
+                '© ${DateTime.now().year} Mae B. Honorario and Team', 
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+              Text(
+                'Built: ${DateFormat('yyyy-MM-dd').format(DateTime.now())}',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 
@@ -64,12 +165,12 @@ Future<void> _loadUserDetails() async {
           ),
         ],
       ),
-      drawer: isLoginScreen ? null : _buildDrawer(primaryColor, secondaryColor),
+      drawer: (isLoginScreen || userRole == "cashier") ? null : _buildRoleBasedDrawer(primaryColor, secondaryColor),
       body: widget.child,
     );
   }
 
-  Widget _buildDrawer(Color primaryColor, Color secondaryColor) {
+  Widget _buildRoleBasedDrawer(Color primaryColor, Color secondaryColor) {
   return Drawer(
     child: Column(
       children: [
@@ -91,24 +192,40 @@ Future<void> _loadUserDetails() async {
         Expanded(
           child: ListView(
             children: [
-              _buildDrawerItem(Icons.dashboard, "Dashboard", primaryColor, () {
-                _navigateToScreen(context, const DashboardScreen());
-              }),
-              _buildDrawerItem(Icons.home, "Home", primaryColor, () {
-                _navigateToScreen(context, HomeScreen());
-              }),
-              _buildDrawerItem(Icons.category, "Categories", primaryColor, () {
-                _navigateToScreen(context, const CategoryScreen());
-              }),
-              _buildDrawerItem(Icons.restaurant_menu, "Menus", primaryColor, () {
-                _navigateToScreen(context, const MenuScreen());
-              }),
-              _buildDrawerItem(Icons.list_alt, "Orders", primaryColor, () {
-                _navigateToScreen(context, const OrderScreen());
-              }),
-              _buildDrawerItem(Icons.people, "Accounts", primaryColor, () {
-                _navigateToScreen(context, const UserListScreen());
-              }),
+              if (userRole == "admin") ...[
+                _buildDrawerItem(Icons.dashboard, "Dashboard", primaryColor, () {
+                  _navigateToScreen(context, const DashboardScreen());
+                }),
+                _buildDrawerItem(Icons.home, "Home", primaryColor, () {
+                  _navigateToScreen(context, HomeScreen());
+                }),
+                _buildDrawerItem(Icons.category, "Categories", primaryColor, () {
+                  _navigateToScreen(context, const CategoryScreen());
+                }),
+                _buildDrawerItem(Icons.restaurant_menu, "Menus", primaryColor, () {
+                  _navigateToScreen(context, const MenuScreen());
+                }),
+                _buildDrawerItem(Icons.list_alt, "Orders", primaryColor, () {
+                  _navigateToScreen(context, const OrderScreen());
+                }),
+                _buildDrawerItem(Icons.people, "Accounts", primaryColor, () {
+                  _navigateToScreen(context, const UserListScreen());
+                }),
+              ] else if (userRole == "kitchen") ...[
+                 _buildDrawerItem(Icons.category, "Categories", primaryColor, () {
+                  _navigateToScreen(context, const CategoryScreen());
+                }),
+                _buildDrawerItem(Icons.restaurant_menu, "Menus", primaryColor, () {
+                  _navigateToScreen(context, const MenuScreen());
+                }),
+                _buildDrawerItem(Icons.list_alt, "Orders", primaryColor, () {
+                  _navigateToScreen(context, const OrderScreen());
+                }),
+              ] else if (userRole == "cashier") ...[
+                _buildDrawerItem(Icons.home, "Home", primaryColor, () {
+                  _navigateToScreen(context, HomeScreen());
+                }),
+              ],
               const Divider(),
               _buildDrawerItem(Icons.logout, "Logout", Colors.red, _showLogoutDialog),
             ],
@@ -162,6 +279,9 @@ Future<void> _loadUserDetails() async {
   }
 
   void _navigateToScreen(BuildContext context, Widget screen) {
+    if (userRole == "cashier" && screen.runtimeType == DashboardScreen) {
+      screen = HomeScreen();
+    }
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => MainLayout(child: screen)),

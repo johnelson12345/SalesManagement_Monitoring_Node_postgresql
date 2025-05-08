@@ -15,21 +15,21 @@ class ApiService {
     }
   }
 
-  Future<bool> addUser(String name, String email, String password) async {
+  Future<bool> addUser(String name, String email, String password, String role) async {
     final response = await http.post(
       Uri.parse(baseUrl),
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"name": name, "email": email, "password": password}),
+      body: jsonEncode({"name": name, "email": email, "password": password, "role": role}),
     );
 
     return response.statusCode == 200;
   }
 
-  Future<bool> updateUser(int id, String name, String email) async {
+  Future<bool> updateUser(int id, String name, String email, String role) async {
     final response = await http.put(
       Uri.parse("$baseUrl/$id"),
       headers: {"Content-Type": "application/json"},
-      body: jsonEncode({"name": name, "email": email}),
+      body: jsonEncode({"name": name, "email": email, "role": role}),
     );
 
     return response.statusCode == 200;

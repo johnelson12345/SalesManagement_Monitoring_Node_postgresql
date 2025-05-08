@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sales_managementv5/admin_screen/categoryscreen.dart';
 import 'package:sales_managementv5/admin_screen/dashboard.dart';
+import 'package:sales_managementv5/admin_screen/homescreen.dart';
 import 'package:sales_managementv5/admin_screen/mainscreen.dart';
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -61,7 +62,27 @@ class _LoginScreenState extends State<LoginScreen> {
       } else {
       }
 
+      // Check if 'role' exists before storing
+      if (data.containsKey('role') && data['role'] != null) {
+        String role = data['role'].toString().toLowerCase();
+        await prefs.setString('userRole', role);
+      } else {
+      }
+
       // Navigate to the next screen
+      if (data.containsKey('role') && data['role'] != null) {
+        String role = data['role'].toString().toLowerCase();
+        await prefs.setString('userRole', role);
+        if (role == "cashier") {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MainLayout(child: HomeScreen()),
+            ),
+          );
+          return;
+        }
+      }
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
