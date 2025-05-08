@@ -4,7 +4,7 @@ import 'package:sales_managementv5/model/orderitem_model.dart';
 import 'package:sales_managementv5/services/order_service.dart';
 import 'package:sales_managementv5/widgets/image_helper.dart';
 
-void showCartDialog(BuildContext context, List<Menu> cartItems, Map<int, int> cartQuantities) {
+void showCartDialog(BuildContext context, List<Menu> cartItems, Map<int, int> cartQuantities, {VoidCallback? onOrderPlaced}) {
   TextEditingController customerNameController = TextEditingController();
   TextEditingController tableNumberController = TextEditingController();
   final OrderService orderService = OrderService();
@@ -217,6 +217,9 @@ void showCartDialog(BuildContext context, List<Menu> cartItems, Map<int, int> ca
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(content: Text("Order place successfully!")),
                               );
+                              if (onOrderPlaced != null) {
+                                onOrderPlaced();
+                              }
                               Navigator.of(context).pop(); // Close dialog
                             } catch (e) {
                               print("Checkout error: $e"); // Fixed error logging

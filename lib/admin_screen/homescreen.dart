@@ -112,12 +112,18 @@ Widget build(BuildContext context) {
                 )
               : const Center(child: Text("No Menus Available")),
 
-      floatingActionButton: Stack(
+floatingActionButton: Stack(
             clipBehavior: Clip.none, // Allows badge to overflow correctly
             children: [
               FloatingActionButton(
                 onPressed: () {
-                  showCartDialog(context, cartItems, cartQuantities);
+                  showCartDialog(context, cartItems, cartQuantities, onOrderPlaced: () {
+                    setState(() {
+                      cartItems.clear();
+                      cartQuantities.clear();
+                      cartItemCount = 0;
+                    });
+                  });
                 },
                 backgroundColor: Colors.orange.shade600,
                 child: const Icon(Icons.shopping_cart, color: Colors.white),
