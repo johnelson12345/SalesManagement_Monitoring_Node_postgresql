@@ -1,8 +1,12 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:sales_managementv5/model/menu_model.dart';
+import 'package:sales_managementv5/widgets/close_button_widget.dart';
 
 class DescriptionMenuDialog extends StatelessWidget {
   final Menu menu;
@@ -39,7 +43,7 @@ class DescriptionMenuDialog extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                   child: Image.memory(
                     imageBytes,
-                    fit: BoxFit.cover,
+                    fit: BoxFit.contain,
                     width: double.infinity,
                     height: 200,
                   ),
@@ -60,9 +64,9 @@ class DescriptionMenuDialog extends StatelessWidget {
                 style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 12),
-              Text(
+              const Text(
                 "Description:",
-                style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 6),
               Text(
@@ -70,12 +74,9 @@ class DescriptionMenuDialog extends StatelessWidget {
                 style: const TextStyle(fontSize: 16),
               ),
               const SizedBox(height: 20),
-              Align(
+              const Align(
                 alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: const Text("Close"),
-                ),
+                child: CloseButtonWidget(),
               ),
             ],
           ),
