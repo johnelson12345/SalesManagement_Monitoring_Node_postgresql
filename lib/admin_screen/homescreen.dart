@@ -6,6 +6,7 @@ import 'package:sales_managementv5/services/category_service.dart';
 import 'package:sales_managementv5/services/menu_service.dart';
 import 'package:sales_managementv5/model/category_model.dart';
 import 'package:sales_managementv5/model/menu_model.dart';
+import 'package:sales_managementv5/admin_screen/description_menu.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -185,76 +186,84 @@ class MenuCard extends StatelessWidget {
     double screenWidth = MediaQuery.of(context).size.width;
     double cardWidth = screenWidth * 0.23;
 
-    return Container(
-      width: cardWidth,
-      margin: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withOpacity(0.3),
-            blurRadius: 8,
-            spreadRadius: 2,
-            offset: const Offset(2, 4),
-          ),
-        ],
-      ),
-      child: Card(
-        elevation: 0,
-        color: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Padding(
-          padding: const EdgeInsets.all(8),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: cardWidth * 0.8,
-                height: cardWidth * 0.8,
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey.shade300, width: 1.5),
+    return GestureDetector(
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) => DescriptionMenuDialog(menu: menu),
+        );
+      },
+      child: Container(
+        width: cardWidth,
+        margin: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.3),
+              blurRadius: 8,
+              spreadRadius: 2,
+              offset: const Offset(2, 4),
+            ),
+          ],
+        ),
+        child: Card(
+          elevation: 0,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Padding(
+            padding: const EdgeInsets.all(8),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: cardWidth * 0.8,
+                  height: cardWidth * 0.8,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[200],
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey.shade300, width: 1.5),
+                  ),
+                  child: _buildImage(menu.image),
                 ),
-                child: _buildImage(menu.image),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                menu.menuname,
-                style: const TextStyle(
-                  color: Colors.black87,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 16,
+                const SizedBox(height: 8),
+                Text(
+                  menu.menuname,
+                  style: const TextStyle(
+                    color: Colors.black87,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                "₱${menu.price.toStringAsFixed(2)}",
-                style: const TextStyle(
-                  color: Colors.green,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600,
+                const SizedBox(height: 4),
+                Text(
+                  "₱${menu.price.toStringAsFixed(2)}",
+                  style: const TextStyle(
+                    color: Colors.green,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              SizedBox(
-                width: cardWidth * 0.8,
-                child: ElevatedButton.icon(
-                 onPressed: () => addToCart(menu),
-                  icon: const Icon(Icons.shopping_cart, color: Colors.white, size: 16),
-                  label: const Text("Buy", style: TextStyle(fontSize: 14)),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.orange.shade600,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    padding: const EdgeInsets.symmetric(vertical: 10),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: cardWidth * 0.8,
+                  child: ElevatedButton.icon(
+                   onPressed: () => addToCart(menu),
+                    icon: const Icon(Icons.shopping_cart, color: Colors.white, size: 16),
+                    label: const Text("Buy", style: TextStyle(fontSize: 14)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange.shade600,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

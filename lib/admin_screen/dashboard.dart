@@ -256,12 +256,51 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     final menus = snapshot.data![1] as List<Menu>;
                     final categories = snapshot.data![2] as List<Category>;
 
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    // Aggregate orders per day
+                    Map<String, int> ordersPerDay = {};
+                    for (var order in orders) {
+                      String day = order.orderDate.toIso8601String().substring(0, 10);
+                      ordersPerDay[day] = (ordersPerDay[day] ?? 0) + 1;
+                    }
+
+                    // Sort days ascending
+                    var sortedDays = ordersPerDay.keys.toList()..sort();
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildSummaryCard('Orders', orders.length, Icons.shopping_cart, [Colors.blue.shade700, Colors.blue.shade400]),
-                        _buildSummaryCard('Menus', menus.length, Icons.restaurant_menu, [Colors.green.shade700, Colors.green.shade400]),
-                        _buildSummaryCard('Categories', categories.length, Icons.category, [Colors.orange.shade700, Colors.orange.shade400]),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            _buildSummaryCard('Orders', orders.length, Icons.shopping_cart, [Colors.blue.shade700, Colors.blue.shade400]),
+                            _buildSummaryCard('Menus', menus.length, Icons.restaurant_menu, [Colors.green.shade700, Colors.green.shade400]),
+                            _buildSummaryCard('Categories', categories.length, Icons.category, [Colors.orange.shade700, Colors.orange.shade400]),
+                          ],
+                        ),
+                        const SizedBox(height: 24),
+                        _buildSectionTitle('Orders Per Day'),
+                        SizedBox(
+                          height: 200,
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: sortedDays.map((day) {
+                              int count = ordersPerDay[day]!;
+                              return Column(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  Container(
+                                    width: 20,
+                                    height: count * 10.0, // scale height
+                                    color: Colors.blue.shade400,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(day.substring(5), style: const TextStyle(fontSize: 10)),
+                                ],
+                              );
+                            }).toList(),
+                          ),
+                        ),
                       ],
                     );
                   }
