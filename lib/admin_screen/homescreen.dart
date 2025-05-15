@@ -9,6 +9,10 @@ import 'package:sales_managementv5/model/menu_model.dart';
 import 'package:sales_managementv5/admin_screen/description_menu.dart';
 
 class HomeScreen extends StatefulWidget {
+  final VoidCallback? onOrderPlaced;
+
+  HomeScreen({Key? key, this.onOrderPlaced}) : super(key: key);
+
   @override
   HomeScreenState createState() => HomeScreenState();
 }
@@ -18,11 +22,12 @@ class HomeScreenState extends State<HomeScreen> {
   Map<int, List<Menu>> categoryMenus = {};
   bool isLoading = true;
   int cartItemCount = 0;
+  int notificationCount = 0; // New notification count state
 
   List<Menu> cartItems = []; // List to store cart items
   Map<int, int> cartQuantities = {}; // Map to track quantities
 
-void addToCart(Menu menu) {  // Ensure it accepts a Menu object
+  void addToCart(Menu menu) {  // Ensure it accepts a Menu object
   setState(() {
     if (!cartQuantities.containsKey(menu.id)) {
       cartItems.add(menu);
@@ -123,6 +128,9 @@ floatingActionButton: Stack(
                       cartQuantities.clear();
                       cartItemCount = 0;
                     });
+                    if (widget.onOrderPlaced != null) {
+                      widget.onOrderPlaced!();
+                    }
                   });
                 },
                 backgroundColor: Colors.orange.shade600,

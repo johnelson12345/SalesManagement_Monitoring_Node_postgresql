@@ -9,6 +9,8 @@ import 'package:sales_managementv5/admin_screen/userscreen.dart';
 import 'package:sales_managementv5/admin_screen/loginscreen.dart';
 import 'package:sales_managementv5/admin_screen/orderscreen.dart';  // Added import for OrderScreen
 import 'package:sales_managementv5/admin_screen/custom_search_delegate.dart';
+import 'package:sales_managementv5/model/notification_model.dart' as notif;
+import 'notification_dialog.dart';
 
 class MainLayout extends StatefulWidget {
   final Widget child;
@@ -22,22 +24,32 @@ class _MainLayoutState extends State<MainLayout> {
   String userName = "Guest";
   String userEmail = "guest@example.com";
 
-@override
-void initState() {
-  super.initState();
-  _loadUserDetails();
-}
+  int notificationCount = 0; // Initial notification count set to 0
 
-Future<void> _loadUserDetails() async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  setState(() {
-    userName = prefs.getString('userName') ?? "Guest";
-    userEmail = prefs.getString('userEmail') ?? "guest@example.com";
-    userRole = prefs.getString('userRole') ?? "guest";
-  });
-}
+  List<notif.Notification> notifications = [];
 
-String userRole = "guest";
+  @override
+  void initState() {
+    super.initState();
+    _loadUserDetails();
+  }
+
+  Future<void> _loadUserDetails() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userName = prefs.getString('userName') ?? "Guest";
+      userEmail = prefs.getString('userEmail') ?? "guest@example.com";
+      userRole = prefs.getString('userRole') ?? "guest";
+    });
+  }
+
+  void updateNotificationCount(int count) {
+    setState(() {
+      notificationCount = count;
+    });
+  }
+
+  String userRole = "guest";
 
   Widget _buildDrawer(Color primaryColor, Color secondaryColor) {
   return Drawer(
@@ -66,7 +78,11 @@ String userRole = "guest";
                   _navigateToScreen(context, const DashboardScreen());
                 }),
                 _buildDrawerItem(Icons.home, "Home", primaryColor, () {
-                  _navigateToScreen(context, HomeScreen());
+                  _navigateToScreen(context, HomeScreen(
+                    onOrderPlaced: () {
+                      updateNotificationCount(notificationCount + 1);
+                    },
+                  ));
                 }),
                 _buildDrawerItem(Icons.category, "Categories", primaryColor, () {
                   _navigateToScreen(context, const CategoryScreen());
@@ -168,46 +184,16 @@ String userRole = "guest";
           ),
           Stack(
             children: [
-              IconButton(
-                icon: const Icon(Icons.notifications, color: Colors.white),
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Notifications'),
-                      content: SizedBox(
-                        width: double.maxFinite,
-                        child: ListView(
-                          shrinkWrap: true,
-                          children: const [
-                            ListTile(
-                              leading: Icon(Icons.notification_important),
-                              title: Text('New order received'),
-                              subtitle: Text('Order #1234 has been placed.'),
-                            ),
-                            ListTile(
-                              leading: Icon(Icons.notification_important),
-                              title: Text('Menu updated'),
-                              subtitle: Text('New items added to the menu.'),
-                            ),
-                            ListTile(
-                              leading: Icon(Icons.notification_important),
-                              title: Text('User registered'),
-                              subtitle: Text('A new user has signed up.'),
-                            ),
-                          ],
-                        ),
-                      ),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(context),
-                          child: const Text('Close'),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+
+          IconButton(
+            icon: const Icon(Icons.notifications, color: Colors.white),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) => NotificationDialog(notifications: notifications),
+              );
+            },
+          ),
               Positioned(
                 right: 11,
                 top: 11,
@@ -221,9 +207,9 @@ String userRole = "guest";
                     minWidth: 14,
                     minHeight: 14,
                   ),
-                  child: const Text(
-                    '3', // Example badge count
-                    style: TextStyle(
+                  child: Text(
+                    '$notificationCount', // Dynamic badge count
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 10,
                       fontWeight: FontWeight.bold,
