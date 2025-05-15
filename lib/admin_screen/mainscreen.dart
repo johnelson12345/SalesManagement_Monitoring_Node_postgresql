@@ -8,6 +8,7 @@ import 'package:sales_managementv5/admin_screen/menus_screen.dart';
 import 'package:sales_managementv5/admin_screen/userscreen.dart';
 import 'package:sales_managementv5/admin_screen/loginscreen.dart';
 import 'package:sales_managementv5/admin_screen/orderscreen.dart';  // Added import for OrderScreen
+import 'package:sales_managementv5/admin_screen/custom_search_delegate.dart';
 
 class MainLayout extends StatefulWidget {
   final Widget child;
@@ -162,7 +163,7 @@ String userRole = "guest";
           IconButton(
             icon: const Icon(Icons.search, color: Colors.white),
             onPressed: () {
-              // TODO: Implement search functionality
+              showSearch(context: context, delegate: CustomSearchDelegate());
             },
           ),
           Stack(
@@ -170,7 +171,41 @@ String userRole = "guest";
               IconButton(
                 icon: const Icon(Icons.notifications, color: Colors.white),
                 onPressed: () {
-                  // TODO: Implement notifications functionality
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Notifications'),
+                      content: SizedBox(
+                        width: double.maxFinite,
+                        child: ListView(
+                          shrinkWrap: true,
+                          children: const [
+                            ListTile(
+                              leading: Icon(Icons.notification_important),
+                              title: Text('New order received'),
+                              subtitle: Text('Order #1234 has been placed.'),
+                            ),
+                            ListTile(
+                              leading: Icon(Icons.notification_important),
+                              title: Text('Menu updated'),
+                              subtitle: Text('New items added to the menu.'),
+                            ),
+                            ListTile(
+                              leading: Icon(Icons.notification_important),
+                              title: Text('User registered'),
+                              subtitle: Text('A new user has signed up.'),
+                            ),
+                          ],
+                        ),
+                      ),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Close'),
+                        ),
+                      ],
+                    ),
+                  );
                 },
               ),
               Positioned(
