@@ -133,45 +133,56 @@ class _UserListScreenState extends State<UserListScreen> {
   }
 
   void confirmDeleteUser(int userId) {
-  showDialog(
-    context: context,
-    builder: (context) => ConfirmationDeleteDialog(
-      content: "Are you sure you want to delete this user?",
-      onConfirm: () async {
-        Navigator.pop(context); // Close the dialog
-        try {
-          bool success = await apiService.deleteUser(userId);
-          if (success) {
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-            int? currentUserId = prefs.getInt('userId');
-            if (currentUserId != null && currentUserId == userId) {
-              // If deleting own account, log out immediately and avoid setState
-              await prefs.clear();
-              if (!mounted) return;
-              Navigator.of(context).pushAndRemoveUntil(
-                
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-                (route) => false,
-              );
-              return; // Prevent further UI updates
-            }
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text("Confirm Delete", style: TextStyle(fontWeight: FontWeight.bold)),
+        content: const Text("Are you sure you want to delete this user?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            style: _elevatedButtonStyle(),
+            onPressed: () async {
+              Navigator.pop(context); // Close the dialog
+              try {
+                bool success = await apiService.deleteUser(userId);
+                if (success) {
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  int? currentUserId = prefs.getInt('userId');
+                  if (currentUserId != null && currentUserId == userId) {
+                    // If deleting own account, log out immediately and avoid setState
+                    await prefs.clear();
+                    if (!mounted) return;
+                    Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(builder: (context) => const LoginScreen()),
+                      (route) => false,
+                    );
+                    return; // Prevent further UI updates
+                  }
 
-            if (!mounted) return;
-            _handleResponse(true, "User deleted successfully");
-          } else {
-            if (!mounted) return;
-            _handleResponse(false, "Operation failed");
-          }
-        } catch (e) {
-          if (!mounted) return;
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Failed to delete user"), backgroundColor: Colors.red),
-          );
-        }
-      },
-    ),
-  );
-}
+                  if (!mounted) return;
+                  _handleResponse(true, "User deleted successfully");
+                } else {
+                  if (!mounted) return;
+                  _handleResponse(false, "Operation failed");
+                }
+              } catch (e) {
+                if (!mounted) return;
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text("Failed to delete user"), backgroundColor: Colors.red),
+                );
+              }
+            },
+            child: const Text("Delete", ),
+          ),
+        ],
+      ),
+    );
+  }
 
 
   void _handleResponse(bool success, String message) {

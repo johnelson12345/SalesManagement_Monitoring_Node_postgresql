@@ -145,23 +145,89 @@ String userRole = "guest";
     
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: primaryColor,
+        elevation: 4,
+        centerTitle: true,
+        iconTheme: const IconThemeData(color: Colors.white),
         title: const Text(
           "Dine'84 Sales Management & Monitoring",
           style: TextStyle(
             color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.2,
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.5,
           ),
         ),
-        centerTitle: true,
-        elevation: 4,
-        backgroundColor: primaryColor,
-        iconTheme: const IconThemeData(color: Colors.white),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout, color: Colors.white),
-            onPressed: _showLogoutDialog,
+            icon: const Icon(Icons.search, color: Colors.white),
+            onPressed: () {
+              // TODO: Implement search functionality
+            },
+          ),
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.notifications, color: Colors.white),
+                onPressed: () {
+                  // TODO: Implement notifications functionality
+                },
+              ),
+              Positioned(
+                right: 11,
+                top: 11,
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: Colors.redAccent,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  constraints: const BoxConstraints(
+                    minWidth: 14,
+                    minHeight: 14,
+                  ),
+                  child: const Text(
+                    '3', // Example badge count
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          PopupMenuButton<String>(
+            icon: const CircleAvatar(
+              backgroundColor: Colors.white,
+              child: Icon(Icons.person, color: Colors.blueGrey),
+            ),
+            onSelected: (value) {
+              if (value == 'profile') {
+                // TODO: Navigate to profile screen
+              } else if (value == 'settings') {
+                // TODO: Navigate to settings screen
+              } else if (value == 'logout') {
+                _showLogoutDialog();
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+              const PopupMenuItem<String>(
+                value: 'profile',
+                child: Text('Profile'),
+              ),
+              const PopupMenuItem<String>(
+                value: 'settings',
+                child: Text('Settings'),
+              ),
+              const PopupMenuDivider(),
+              const PopupMenuItem<String>(
+                value: 'logout',
+                child: Text('Logout'),
+              ),
+            ],
           ),
         ],
       ),
