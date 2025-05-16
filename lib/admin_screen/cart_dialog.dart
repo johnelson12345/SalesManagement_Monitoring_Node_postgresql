@@ -214,18 +214,22 @@ void showCartDialog(BuildContext context, List<Menu> cartItems, Map<int, int> ca
 
                               await orderService.placeOrder(customerName, orderItems, tableNumber: tableNumber);
 
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text("Order place successfully!")),
-                              );
-                              if (onOrderPlaced != null) {
-                                onOrderPlaced();
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text("Order place successfully!")),
+                                );
+                                if (onOrderPlaced != null) {
+                                  onOrderPlaced();
+                                }
+                                Navigator.of(context).pop(); // Close dialog
                               }
-                              Navigator.of(context).pop(); // Close dialog
                             } catch (e) {
                               print("Checkout error: $e"); // Fixed error logging
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text("Failed to save order: $e")),
-                              );
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text("Failed to save order: $e")),
+                                );
+                              }
                             }
                           },
                           style: ElevatedButton.styleFrom(

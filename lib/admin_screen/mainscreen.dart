@@ -11,6 +11,8 @@ import 'package:sales_managementv5/admin_screen/orderscreen.dart';  // Added imp
 import 'package:sales_managementv5/admin_screen/custom_search_delegate.dart';
 import 'package:sales_managementv5/model/notification_model.dart' as notif;
 import 'notification_dialog.dart';
+import 'package:sales_managementv5/services/notification_service.dart';
+
 
 class MainLayout extends StatefulWidget {
   final Widget child;
@@ -24,14 +26,24 @@ class _MainLayoutState extends State<MainLayout> {
   String userName = "Guest";
   String userEmail = "guest@example.com";
 
-  int notificationCount = 0; // Initial notification count set to 0
-
-  List<notif.Notification> notifications = [];
+  final NotificationService _notificationService = NotificationService();
 
   @override
   void initState() {
     super.initState();
     _loadUserDetails();
+    _notificationService.addListener(_notificationListener);
+  }
+
+  @override
+  void dispose() {
+    _notificationService.removeListener(_notificationListener);
+    super.dispose();
+  }
+
+  void _notificationListener() {
+    if (!mounted) return;
+    setState(() {});
   }
 
   Future<void> _loadUserDetails() async {
@@ -43,115 +55,109 @@ class _MainLayoutState extends State<MainLayout> {
     });
   }
 
-  void updateNotificationCount(int count) {
-    setState(() {
-      notificationCount = count;
-    });
-  }
-
   String userRole = "guest";
 
   Widget _buildDrawer(Color primaryColor, Color secondaryColor) {
-  return Drawer(
-    child: Column(
-      children: [
-        UserAccountsDrawerHeader(
-          decoration: BoxDecoration(color: primaryColor),
-          accountName: Text(
-            userName,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    return Drawer(
+      child: Column(
+        children: [
+          UserAccountsDrawerHeader(
+            decoration: BoxDecoration(color: primaryColor),
+            accountName: Text(
+              userName,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            accountEmail: Text(
+              userEmail,
+              style: const TextStyle(color: Colors.white70, fontSize: 14),
+            ),
+            currentAccountPicture: const CircleAvatar(
+              backgroundColor: Colors.white,
+              child: Icon(Icons.person, size: 40, color: Colors.blueGrey),
+            ),
           ),
-          accountEmail: Text(
-            userEmail,
-            style: const TextStyle(color: Colors.white70, fontSize: 14),
-          ),
-          currentAccountPicture: const CircleAvatar(
-            backgroundColor: Colors.white,
-            child: Icon(Icons.person, size: 40, color: Colors.blueGrey),
-          ),
-        ),
-        Expanded(
-          child: ListView(
-            children: [
-              if (userRole == "admin") ...[
-                _buildDrawerItem(Icons.dashboard, "Dashboard", primaryColor, () {
-                  _navigateToScreen(context, const DashboardScreen());
-                }),
-                _buildDrawerItem(Icons.home, "Home", primaryColor, () {
-                  _navigateToScreen(context, HomeScreen(
-                    onOrderPlaced: () {
-                      updateNotificationCount(notificationCount + 1);
-                    },
-                  ));
-                }),
-                _buildDrawerItem(Icons.category, "Categories", primaryColor, () {
-                  _navigateToScreen(context, const CategoryScreen());
-                }),
-                _buildDrawerItem(Icons.restaurant_menu, "Menus", primaryColor, () {
-                  _navigateToScreen(context, const MenuScreen());
-                }),
-                _buildDrawerItem(Icons.list_alt, "Orders", primaryColor, () {
-                  _navigateToScreen(context, const OrderScreen());
-                }),
-                _buildDrawerItem(Icons.people, "Accounts", primaryColor, () {
-                  _navigateToScreen(context, const UserListScreen());
-                }),
-              ] else if (userRole == "kitchen") ...[
-                _buildDrawerItem(Icons.restaurant_menu, "Menus", primaryColor, () {
-                  _navigateToScreen(context, const MenuScreen());
-                }),
-                _buildDrawerItem(Icons.list_alt, "Orders", primaryColor, () {
-                  _navigateToScreen(context, const OrderScreen());
-                }),
-              ] else if (userRole == "cashier") ...[
-                _buildDrawerItem(Icons.list_alt, "Orders", primaryColor, () {
-                  _navigateToScreen(context, const OrderScreen());
-                }),
-                _buildDrawerItem(Icons.people, "Accounts", primaryColor, () {
-                  _navigateToScreen(context, const UserListScreen());
-                }),
+          Expanded(
+            child: ListView(
+              children: [
+                if (userRole == "admin") ...[
+                  _buildDrawerItem(Icons.dashboard, "Dashboard", primaryColor, () {
+                    _navigateToScreen(context, const DashboardScreen());
+                  }),
+                  _buildDrawerItem(Icons.home, "Home", primaryColor, () {
+                    _navigateToScreen(context, HomeScreen(
+                      onOrderPlaced: () {
+                        _notificationService.addNotification("Order Placed", "Your order has been placed successfully.");
+                      },
+                    ));
+                  }),
+                  _buildDrawerItem(Icons.category, "Categories", primaryColor, () {
+                    _navigateToScreen(context, const CategoryScreen());
+                  }),
+                  _buildDrawerItem(Icons.restaurant_menu, "Menus", primaryColor, () {
+                    _navigateToScreen(context, const MenuScreen());
+                  }),
+                  _buildDrawerItem(Icons.list_alt, "Orders", primaryColor, () {
+                    _navigateToScreen(context, const OrderScreen());
+                  }),
+                  _buildDrawerItem(Icons.people, "Accounts", primaryColor, () {
+                    _navigateToScreen(context, const UserListScreen());
+                  }),
+                ] else if (userRole == "kitchen") ...[
+                  _buildDrawerItem(Icons.restaurant_menu, "Menus", primaryColor, () {
+                    _navigateToScreen(context, const MenuScreen());
+                  }),
+                  _buildDrawerItem(Icons.list_alt, "Orders", primaryColor, () {
+                    _navigateToScreen(context, const OrderScreen());
+                  }),
+                ] else if (userRole == "cashier") ...[
+                  _buildDrawerItem(Icons.list_alt, "Orders", primaryColor, () {
+                    _navigateToScreen(context, const OrderScreen());
+                  }),
+                  _buildDrawerItem(Icons.people, "Accounts", primaryColor, () {
+                    _navigateToScreen(context, const UserListScreen());
+                  }),
+                ],
+                const Divider(),
+                _buildDrawerItem(Icons.logout, "Logout", Colors.red, _showLogoutDialog),
               ],
-              const Divider(),
-              _buildDrawerItem(Icons.logout, "Logout", Colors.red, _showLogoutDialog),
-            ],
+            ),
           ),
-        ),
-        // Version information added here
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Divider(),
-              const SizedBox(height: 8),
-              Text(
-                'v1.0.0', // Replace with your actual version
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
+          // Version information added here
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Divider(),
+                const SizedBox(height: 8),
+                Text(
+                  'v1.0.0', // Replace with your actual version
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                  ),
                 ),
-              ),
-              Text(
-                '© ${DateTime.now().year} Mae B. Honorario and Team', 
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
+                Text(
+                  '© ${DateTime.now().year} Mae B. Honorario and Team', 
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                  ),
                 ),
-              ),
-              Text(
-                'Built: ${DateFormat('yyyy-MM-dd').format(DateTime.now())}',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey.shade600,
+                Text(
+                  'Built: ${DateFormat('yyyy-MM-dd').format(DateTime.now())}',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey.shade600,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ],
-    ),
-  );
-}
+        ],
+      ),
+    );
+  }
 
 
   @override
@@ -190,7 +196,7 @@ class _MainLayoutState extends State<MainLayout> {
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (context) => NotificationDialog(notifications: notifications),
+                builder: (context) => NotificationDialog(notifications: _notificationService.notifications),
               );
             },
           ),
@@ -208,7 +214,7 @@ class _MainLayoutState extends State<MainLayout> {
                     minHeight: 14,
                   ),
                   child: Text(
-                    '$notificationCount', // Dynamic badge count
+                    '${_notificationService.notificationCount}', // Dynamic badge count
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 10,
@@ -284,7 +290,11 @@ class _MainLayoutState extends State<MainLayout> {
                   _navigateToScreen(context, const DashboardScreen());
                 }),
                 _buildDrawerItem(Icons.home, "Home", primaryColor, () {
-                  _navigateToScreen(context, HomeScreen());
+                  _navigateToScreen(context, HomeScreen(
+                    onOrderPlaced: () {
+                      _notificationService.addNotification("Order Placed", "Your order has been placed successfully.");
+                    },
+                  ));
                 }),
                 _buildDrawerItem(Icons.category, "Categories", primaryColor, () {
                   _navigateToScreen(context, const CategoryScreen());
