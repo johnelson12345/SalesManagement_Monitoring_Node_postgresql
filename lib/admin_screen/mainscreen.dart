@@ -12,6 +12,7 @@ import 'package:sales_managementv5/admin_screen/custom_search_delegate.dart';
 import 'package:sales_managementv5/model/notification_model.dart' as notif;
 import 'notification_dialog.dart';
 import 'package:sales_managementv5/services/notification_service.dart';
+import 'settings.dart';
 
 
 class MainLayout extends StatefulWidget {
@@ -235,7 +236,10 @@ class _MainLayoutState extends State<MainLayout> {
               if (value == 'profile') {
                 // TODO: Navigate to profile screen
               } else if (value == 'settings') {
-                // TODO: Navigate to settings screen
+                showDialog(
+                  context: context,
+                  builder: (context) => const SettingsDialog(),
+                );
               } else if (value == 'logout') {
                 _showLogoutDialog();
               }
