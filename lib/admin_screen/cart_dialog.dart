@@ -216,7 +216,8 @@ void showCartDialog(BuildContext context, List<Menu> cartItems, Map<int, int> ca
 
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text("Order place successfully!")),
+                                  const SnackBar(content: Text("Order place successfully!"),
+                                  backgroundColor: Colors.green,),
                                 );
                                 if (onOrderPlaced != null) {
                                   onOrderPlaced();
