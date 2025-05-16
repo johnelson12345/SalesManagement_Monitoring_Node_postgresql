@@ -279,26 +279,92 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         ),
                         const SizedBox(height: 24),
                         _buildSectionTitle('Orders Per Day'),
+                        // Added descriptive title for the graph
+                        const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4),
+                          child: Text(
+                            'Number of Orders per Day',
+                            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          ),
+                        ),
                         SizedBox(
-                          height: 200,
+                          height: 220,
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: sortedDays.map((day) {
-                              int count = ordersPerDay[day]!;
-                              return Column(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Container(
-                                    width: 20,
-                                    height: count * 10.0, // scale height
-                                    color: Colors.blue.shade400,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(day.substring(5), style: const TextStyle(fontSize: 10)),
-                                ],
-                              );
-                            }).toList(),
+                            children: [
+                              // Vertical axis with tick marks and labels
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: List.generate(6, (index) {
+                                  int maxCount = (ordersPerDay.values.isEmpty) ? 0 : ordersPerDay.values.reduce((a, b) => a > b ? a : b);
+                                  int tickValue = (maxCount / 5 * (5 - index)).ceil();
+                                  return SizedBox(
+                                    height: 36,
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          tickValue.toString(),
+                                          style: const TextStyle(fontSize: 10),
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Container(
+                                          width: 1,
+                                          height: 1,
+                                          color: Colors.grey,
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }),
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Stack(
+                                  children: [
+                                    // Horizontal grid lines
+                                    Column(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: List.generate(6, (index) {
+                                        return Container(
+                                          height: 1,
+                                          color: Colors.grey.shade300,
+                                        );
+                                      }),
+                                    ),
+                                    // Bars and dates
+                                    Row(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                      children: sortedDays.map((day) {
+                                        int count = ordersPerDay[day]!;
+                                        double maxCount = (ordersPerDay.values.isEmpty) ? 1 : ordersPerDay.values.reduce((a, b) => a > b ? a : b).toDouble();
+                                        double barHeight = (count / maxCount) * 160;
+                                        return Column(
+                                          mainAxisAlignment: MainAxisAlignment.end,
+                                          children: [
+                                            Container(
+                                              width: 20,
+                                              height: barHeight,
+                                              color: Colors.blue.shade400,
+                                            ),
+                                            const SizedBox(height: 4),
+                                            Text(day.substring(5), style: const TextStyle(fontSize: 10)),
+                                          ],
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        // Horizontal axis label
+                        const Padding(
+                          padding: EdgeInsets.only(top: 4, left: 40),
+                          child: Text(
+                            'Date',
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
                           ),
                         ),
                       ],
