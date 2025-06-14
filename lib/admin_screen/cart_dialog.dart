@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sales_managementv5/admin_screen/receipt_dialog.dart';
 import 'package:sales_managementv5/model/menu_model.dart';
 import 'package:sales_managementv5/model/orderitem_model.dart';
 import 'package:sales_managementv5/services/order_service.dart';
@@ -222,7 +223,17 @@ void showCartDialog(BuildContext context, List<Menu> cartItems, Map<int, int> ca
                                 if (onOrderPlaced != null) {
                                   onOrderPlaced();
                                 }
-                                Navigator.of(context).pop(); // Close dialog
+                                Navigator.of(context).pop(); // Close cart dialog
+                                // Show receipt dialog after closing cart dialog
+                                showDialog(
+                                  context: context,
+                                  builder: (context) => ReceiptDialog(
+                                    customerName: customerName,
+                                    tableNumber: tableNumber,
+                                    orders: orderItems,
+                                    totalPrice: totalPrice,
+                                  ),
+                                );
                               }
                             } catch (e) {
                               print("Checkout error: $e"); // Fixed error logging
