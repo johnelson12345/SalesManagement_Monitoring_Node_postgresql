@@ -213,7 +213,7 @@ void showCartDialog(BuildContext context, List<Menu> cartItems, Map<int, int> ca
                                 );
                               }).toList();
 
-                              int orderId = await orderService.placeOrder(customerName, orderItems, tableNumber: tableNumber);
+                              String orderNumber = await orderService.placeOrder(customerName, orderItems, tableNumber: tableNumber);
 
                               if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -232,7 +232,7 @@ void showCartDialog(BuildContext context, List<Menu> cartItems, Map<int, int> ca
                                     tableNumber: tableNumber,
                                     orders: orderItems,
                                     totalPrice: totalPrice,
-                                    orderNumber: orderId,
+                                    orderNumber: orderNumber,
                                   ),
                                 );
                               }

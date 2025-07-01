@@ -10,7 +10,7 @@ class ReceiptDialog extends StatefulWidget {
   final String tableNumber;
   final List<OrderItem> orders;
   final double totalPrice;
-  final int orderNumber;
+  final String orderNumber;
 
   const ReceiptDialog({
     Key? key,
@@ -51,7 +51,7 @@ class _ReceiptDialogState extends State<ReceiptDialog> {
                   child: pw.Text('Receipt', style: pw.TextStyle(fontSize: 22, fontWeight: pw.FontWeight.bold)),
                 ),
                 pw.SizedBox(height: 12),
-                pw.Text('Order Number: ${widget.orderNumber}', style: pw.TextStyle(fontSize: 16)),
+                pw.Text('Order Number: ${widget.orderNumber}', style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
                 pw.Text('Customer Name: ${widget.customerName}', style: pw.TextStyle(fontSize: 16)),
                 pw.Text('Table Number: ${widget.tableNumber}', style: pw.TextStyle(fontSize: 16)),
                 pw.Divider(),

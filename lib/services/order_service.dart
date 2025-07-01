@@ -20,7 +20,7 @@ class OrderService {
     }
   }
 
-  Future<int> placeOrder(String customerName, List<OrderItem> items, {String? tableNumber}) async {
+  Future<String> placeOrder(String customerName, List<OrderItem> items, {String? tableNumber}) async {
     try {
       final cartItems = items.map((item) => item.toJson()).toList();
       final response = await http.post(
@@ -37,7 +37,7 @@ class OrderService {
         throw Exception("Failed to place order");
       }
       final responseData = jsonDecode(response.body);
-      return responseData['orderId'] ?? 0;
+      return responseData['order_number'] ?? '';
     } catch (e) {
       throw Exception("Error placing order: $e");
     }
