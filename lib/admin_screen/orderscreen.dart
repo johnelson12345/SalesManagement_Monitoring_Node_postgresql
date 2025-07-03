@@ -3,6 +3,7 @@ import 'package:sales_managementv5/model/order_model.dart';
 import 'package:sales_managementv5/model/orderitem_model.dart';
 import '../services/order_service.dart';
 import 'package:intl/intl.dart';
+import 'receipt_dialog.dart';
 
 class OrderScreen extends StatefulWidget {
   const OrderScreen({super.key});
@@ -17,6 +18,7 @@ class _OrderScreenState extends State<OrderScreen> {
   final _searchController = TextEditingController();
   String _searchQuery = '';
   String _statusFilter = 'all'; // New status filter state
+  String _dateFilter = 'all'; // New date filter state
 
   Map<int, String> _orderStatusMap = {};
 
@@ -45,6 +47,31 @@ class _OrderScreenState extends State<OrderScreen> {
     return DateFormat('MMM dd, yyyy - hh:mm a').format(date);
   }
 
+  bool _isOrderInDateFilter(Order order) {
+    final now = DateTime.now();
+    final orderDate = order.orderDate;
+
+    switch (_dateFilter) {
+      case 'day':
+        return orderDate.year == now.year &&
+            orderDate.month == now.month &&
+            orderDate.day == now.day;
+      case 'week':
+        // Calculate the start of the week (Monday)
+        final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+        final endOfWeek = startOfWeek.add(const Duration(days: 6));
+        return orderDate.isAfter(startOfWeek.subtract(const Duration(seconds: 1))) &&
+            orderDate.isBefore(endOfWeek.add(const Duration(days: 1)));
+      case 'month':
+        return orderDate.year == now.year && orderDate.month == now.month;
+      case 'year':
+        return orderDate.year == now.year;
+      case 'all':
+      default:
+        return true;
+    }
+  }
+
   List<Order> _filterOrders(List<Order> orders) {
     List<Order> filtered = orders;
 
@@ -52,6 +79,9 @@ class _OrderScreenState extends State<OrderScreen> {
     if (_statusFilter != 'all') {
       filtered = filtered.where((order) => order.status == _statusFilter).toList();
     }
+
+    // Filter by date
+    filtered = filtered.where(_isOrderInDateFilter).toList();
 
     // Filter by search query
     if (_searchQuery.isNotEmpty) {
@@ -138,6 +168,36 @@ class _OrderScreenState extends State<OrderScreen> {
                           if (value != null) {
                             setState(() {
                               _statusFilter = value;
+                              _currentPage = 0; // Reset page on filter change
+                            });
+                          }
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    // Date filter dropdown smaller width
+                    SizedBox(
+                      width: 140,
+                      child: DropdownButtonFormField<String>(
+                        value: _dateFilter,
+                        decoration: InputDecoration(
+                          labelText: ' Filter by Date',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                        ),
+                        items: const [
+                          DropdownMenuItem(value: 'all', child: Text('All')),
+                          DropdownMenuItem(value: 'day', child: Text('Per Day')),
+                          DropdownMenuItem(value: 'week', child: Text('Per Week')),
+                          DropdownMenuItem(value: 'month', child: Text('Per Month')),
+                          DropdownMenuItem(value: 'year', child: Text('Per Year')),
+                        ],
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() {
+                              _dateFilter = value;
                               _currentPage = 0; // Reset page on filter change
                             });
                           }
@@ -429,63 +489,84 @@ class _OrderScreenState extends State<OrderScreen> {
                                         const SizedBox(height: 12),
                                         // Add dropdown for order status
                                         Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                           children: [
-                                            const Text(
-                                              "Status: ",
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 14,
-                                              ),
-                                            ),
-                                            DropdownButton<String>(
-                                              value: _orderStatusMap[order.id] ?? 'pending',
-                                              items: [
-                                                DropdownMenuItem(
-                                                  value: 'pending',
-                                                  child: Text(
-                                                    'Pending',
-                                                    style: TextStyle(color: Colors.orange.shade700),
+                                            Row(
+                                              children: [
+                                                const Text(
+                                                  "Status: ",
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    fontSize: 14,
                                                   ),
                                                 ),
-                                                DropdownMenuItem(
-                                                  value: 'completed',
-                                                  child: Text(
-                                                    'Completed',
-                                                    style: TextStyle(color: Colors.green.shade700),
-                                                  ),
-                                                ),
-                                                DropdownMenuItem(
-                                                  value: 'cancelled',
-                                                  child: Text(
-                                                    'Cancelled',
-                                                    style: TextStyle(color: Colors.red.shade700),
+                                                DropdownButton<String>(
+                                                  value: _orderStatusMap[order.id] ?? 'pending',
+                                                  items: [
+                                                    DropdownMenuItem(
+                                                      value: 'pending',
+                                                      child: Text(
+                                                        'Pending',
+                                                        style: TextStyle(color: Colors.orange.shade700),
+                                                      ),
+                                                    ),
+                                                    DropdownMenuItem(
+                                                      value: 'completed',
+                                                      child: Text(
+                                                        'Completed',
+                                                        style: TextStyle(color: Colors.green.shade700),
+                                                      ),
+                                                    ),
+                                                    DropdownMenuItem(
+                                                      value: 'cancelled',
+                                                      child: Text(
+                                                        'Cancelled',
+                                                        style: TextStyle(color: Colors.red.shade700),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                  onChanged: (String? newValue) async {
+                                                    if (newValue != null) {
+                                                      bool success = await _orderService.updateOrderStatus(order.id!, newValue);
+                                                      if (success) {
+                                                        setState(() {
+                                                          _orderStatusMap[order.id!] = newValue;
+                                                        });
+                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                          SnackBar(content: Text('Order status updated to $newValue')),
+                                                        );
+                                                      } else {
+                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                          const SnackBar(content: Text('Failed to update order status')),
+                                                        );
+                                                      }
+                                                    }
+                                                  },
+                                                  style: TextStyle(
+                                                    color: _orderStatusMap[order.id] == 'completed'
+                                                        ? Colors.green.shade700
+                                                        : _orderStatusMap[order.id] == 'cancelled'
+                                                            ? Colors.red.shade700
+                                                            : Colors.orange.shade700,
                                                   ),
                                                 ),
                                               ],
-                                              onChanged: (String? newValue) async {
-                                                if (newValue != null) {
-                                                  bool success = await _orderService.updateOrderStatus(order.id!, newValue);
-                                                  if (success) {
-                                                    setState(() {
-                                                      _orderStatusMap[order.id!] = newValue;
-                                                    });
-                                                    ScaffoldMessenger.of(context).showSnackBar(
-                                                      SnackBar(content: Text('Order status updated to $newValue')),
-                                                    );
-                                                  } else {
-                                                    ScaffoldMessenger.of(context).showSnackBar(
-                                                      const SnackBar(content: Text('Failed to update order status')),
-                                                    );
-                                                  }
-                                                }
+                                            ),
+                                            IconButton(
+                                              icon: const Icon(Icons.print, color: Colors.blue),
+                                              tooltip: 'Print Receipt',
+                                              onPressed: () {
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (context) => ReceiptDialog(
+                                                    customerName: order.customerName,
+                                                    tableNumber: order.tableNumber ?? 'N/A',
+                                                    orders: order.items,
+                                                    totalPrice: order.totalPrice,
+                                                    orderNumber: order.id.toString(),
+                                                  ),
+                                                );
                                               },
-                                              style: TextStyle(
-                                                color: _orderStatusMap[order.id] == 'completed'
-                                                    ? Colors.green.shade700
-                                                    : _orderStatusMap[order.id] == 'cancelled'
-                                                        ? Colors.red.shade700
-                                                        : Colors.orange.shade700,
-                                              ),
                                             ),
                                           ],
                                         ),
